@@ -18,10 +18,13 @@ The application follows the **MVVM (Model-View-ViewModel)** architecture with th
 - ✅ User Profile
 - ✅ Contacts
 - ✅ Upload Video
+- ✅ Comments
+- ✅ Views
 - ✅ Private Video Sharing
 - ✅ Feed
 - ✅ Video Player
 - ✅ Privacy Settings
+
 
 ---
 
@@ -30,7 +33,6 @@ The application follows the **MVVM (Model-View-ViewModel)** architecture with th
 - ⭐ AI Subtitles
 - ⭐ Video Analytics
 - ⭐ Reactions
-- ⭐ Comments
 - ⭐ Search
 - ⭐ Categories
 - ⭐ Cloud Backup
