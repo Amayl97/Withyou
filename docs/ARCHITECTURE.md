@@ -358,6 +358,7 @@ Play Video
 
 ↓
 
+
 Update Analytics
 ```
 
@@ -455,6 +456,11 @@ Receiver Opens App
 ↓
 
 Video Appears
+
+↓
+
+
+Can see comments
 
 ↓
 
