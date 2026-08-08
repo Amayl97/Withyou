@@ -1,6 +1,7 @@
 package com.example.withyou.authentication.data
 
 import android.app.Activity
+import android.util.Log
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
@@ -34,6 +35,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
                 override fun onVerificationFailed(
                     e: FirebaseException
                 ) {
+                    Log.e("PHONE_AUTH", "Verification failed", e)
                     onError(e.message ?: "Verification failed")
                 }
 
@@ -41,6 +43,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
                     verificationId: String,
                     token: PhoneAuthProvider.ForceResendingToken
                 ) {
+                    Log.d("PHONE_AUTH", "OTP sent. Verification ID: $verificationId")
                     onCodeSent(verificationId)
                 }
             }
