@@ -1,14 +1,18 @@
 package com.example.withyou.authentication.data
 
 import android.app.Activity
+import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 
 class AuthenticationRepositoryImpl @Inject constructor(
     private val firebaseAuth : FirebaseAuth
-) : AuthenticationRepository{
+) : AuthenticationRepository {
 
     override fun sendOtp(
         phoneNumber: String,
@@ -17,7 +21,37 @@ class AuthenticationRepositoryImpl @Inject constructor(
         onVerificationCompleted: (PhoneAuthCredential) -> Unit,
         onError: (String) -> Unit
     ) {
-        TODO("Not yet implemented")
-    }
 
+        val callbacks =
+            object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
+                override fun onVerificationCompleted(
+                    credential: PhoneAuthCredential
+                ) {
+                    onVerificationCompleted(credential)
+                }
+
+                override fun onVerificationFailed(
+                    e: FirebaseException
+                ) {
+                    onError(e.message ?: "Verification failed")
+                }
+
+                override fun onCodeSent(
+                    verificationId: String,
+                    token: PhoneAuthProvider.ForceResendingToken
+                ) {
+                    onCodeSent(verificationId)
+                }
+            }
+
+        val options = PhoneAuthOptions.newBuilder(firebaseAuth)
+            .setPhoneNumber(phoneNumber)
+            .setTimeout(60L, TimeUnit.SECONDS)
+            .setActivity(activity)
+            .setCallbacks(callbacks)
+            .build()
+
+        PhoneAuthProvider.verifyPhoneNumber(options)
+    }
 }
