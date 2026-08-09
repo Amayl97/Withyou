@@ -57,4 +57,28 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
+
+    override fun verifyOtp(
+        verificationId: String,
+        otp: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val credential = PhoneAuthProvider.getCredential(
+            verificationId,
+            otp
+        )
+
+        firebaseAuth.signInWithCredential(credential)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    onSuccess()
+                } else {
+                    onError(
+                        task.exception?.message
+                            ?: "OTP verification failed"
+                    )
+                }
+            }
+    }
 }

@@ -1,8 +1,5 @@
-package com.example.withyou.ui.screens.login
+package com.example.withyou.ui.screens.Otp
 
-
-import android.R
-import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import com.example.withyou.ui.theme.AppSpacing
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,23 +17,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.withyou.authentication.presentation.AuthViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.example.withyou.ui.theme.AppSpacing
 
 @Composable
-fun LoginScreen(
-    onOtpSent: () -> Unit,
+fun OtpScreen(
+    onVerificationSuccess: () -> Unit,
     viewModel: AuthViewModel
 ) {
-    var phoneNumber by remember {
+    var otp by remember {
         mutableStateOf("")
     }
-
-    val context = LocalContext.current
-    val activity = context as Activity
 
     Column(
         modifier = Modifier
@@ -48,7 +39,7 @@ fun LoginScreen(
     ) {
 
         Text(
-            text = "Login",
+            text = "Enter OTP",
             style = MaterialTheme.typography.bodyLarge
         )
 
@@ -57,25 +48,28 @@ fun LoginScreen(
         )
 
         OutlinedTextField(
-            value = phoneNumber,
+            value = otp,
             onValueChange = {
-                phoneNumber = it
+                otp = it
             },
             label = {
-                Text("Phone Number")
+                Text("OTP")
             }
+        )
+
+        Spacer(
+            modifier = Modifier.height(AppSpacing.Medium)
         )
 
         Button(
             onClick = {
-                viewModel.sendOtp(
-                    phoneNumber = phoneNumber,
-                    activity = activity,
-                    onOtpSent = onOtpSent
+                viewModel.verifyOtp(
+                    otp = otp,
+                    onSuccess = onVerificationSuccess
                 )
             }
         ) {
-            Text("Send OTP")
+            Text("Verify OTP")
         }
     }
 }

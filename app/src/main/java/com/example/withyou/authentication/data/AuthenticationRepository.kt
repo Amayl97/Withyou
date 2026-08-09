@@ -13,4 +13,10 @@ interface AuthenticationRepository{
     onError: (String) -> Unit
 
     )
+    fun verifyOtp(
+        verificationId: String,
+        otp: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    )
 }

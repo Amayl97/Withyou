@@ -1,38 +1,49 @@
 package com.example.withyou.navigation
 
-import androidx.navigation.compose.rememberNavController
+import android.annotation.SuppressLint
+import androidx.navigation.NavOptionsBuilder
+
+
+
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.withyou.authentication.presentation.AuthViewModel
 import com.example.withyou.ui.components.BottomNavigationBar
 import com.example.withyou.ui.screens.home.HomeScreen
 import com.example.withyou.ui.screens.login.LoginScreen
+import com.example.withyou.ui.screens.Otp.OtpScreen
 import com.example.withyou.ui.screens.profile.ProfileScreen
 import com.example.withyou.ui.screens.splash.SplashScreen
 import com.example.withyou.ui.screens.upload.UploadScreen
 
-//Think of navigation as a city map.
-//Screens = Places (Home, Login, Profile...)
-//Routes = Addresses ("home", "login")
-//NavController = GPS
-//NavHost = Map
-//Scaffold = House layout
-//BottomNavigationBar = Menu at the bottom
-//BottomNavItem = Information about each menu item
+// Think of navigation as a city map.
+// Screens = Places (Home, Login, Profile...)
+// Routes = Addresses ("home", "login")
+// NavController = GPS
+// NavHost = Map
+// Scaffold = House layout
+// BottomNavigationBar = Menu at the bottom
+// BottomNavItem = Information about each menu item
 
-
+@SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
 fun AppNavigation() {
 
     val navController = rememberNavController()
 
     // Observe the current destination
-    val navBackStackEntry = navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry.value?.destination?.route
+    val navBackStackEntry =
+        navController.currentBackStackEntryAsState()
+
+    val currentRoute =
+        navBackStackEntry.value?.destination?.route
 
     // Screens that should display the bottom bar
     val bottomBarScreens = listOf(
@@ -42,13 +53,13 @@ fun AppNavigation() {
     )
 
     Scaffold(
-
         bottomBar = {
             if (currentRoute in bottomBarScreens) {
-                BottomNavigationBar(navController = navController)
+                BottomNavigationBar(
+                    navController = navController
+                )
             }
         }
-
     ) { innerPadding ->
 
         NavHost(
@@ -57,6 +68,7 @@ fun AppNavigation() {
             modifier = Modifier.padding(innerPadding)
         ) {
 
+            // Splash
             composable(Screen.Splash.route) {
                 SplashScreen(
                     onNavigateToLogin = {
@@ -65,27 +77,45 @@ fun AppNavigation() {
                 )
             }
 
+            // Login
             composable(Screen.Login.route) {
+                val viewModel: AuthViewModel = hiltViewModel()
+
                 LoginScreen(
-                    onLoginSuccess = {
+                    onOtpSent = {
+                        navController.navigate(Screen.Otp.route)
+                    },
+                    viewModel = viewModel
+                )
+            }
+            // OTP
+            composable(Screen.Otp.route) {
+                val viewModel: AuthViewModel = hiltViewModel(
+                    navController.getBackStackEntry(Screen.Login.route)
+                )
+
+                OtpScreen(
+                    viewModel = viewModel,
+                    onVerificationSuccess = {
                         navController.navigate(Screen.Home.route)
                     }
                 )
             }
-
+            // Home
             composable(Screen.Home.route) {
                 HomeScreen()
             }
 
+            // Upload
             composable(Screen.Upload.route) {
                 UploadScreen()
             }
 
+            // Profile
             composable(Screen.Profile.route) {
                 ProfileScreen()
             }
-
         }
-
     }
 }
+
