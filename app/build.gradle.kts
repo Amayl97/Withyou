@@ -48,6 +48,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation(libs.hilt.android)
     implementation(libs.androidx.compose.runtime)
+    implementation("com.google.firebase:firebase-firestore")
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
