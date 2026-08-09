@@ -46,6 +46,8 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.17.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
     implementation(libs.hilt.android)
     implementation(libs.androidx.compose.runtime)
     implementation("com.google.firebase:firebase-firestore")
