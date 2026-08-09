@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -26,6 +27,8 @@ fun OtpScreen(
     onVerificationSuccess: () -> Unit,
     viewModel: AuthViewModel
 ) {
+    val isLoading = viewModel.isLoading.value
+    val errorMessage = viewModel.errorMessage.value
     var otp by remember {
         mutableStateOf("")
     }
@@ -67,9 +70,21 @@ fun OtpScreen(
                     otp = otp,
                     onSuccess = onVerificationSuccess
                 )
-            }
+            },
+            enabled = !isLoading
         ) {
-            Text("Verify OTP")
+           if(isLoading){
+               CircularProgressIndicator()
+           }
+            else{
+                Text("Verify OTP")
+           }
+
+        }
+        if(errorMessage != null){
+            Text(
+                text = errorMessage
+            )
         }
     }
 }

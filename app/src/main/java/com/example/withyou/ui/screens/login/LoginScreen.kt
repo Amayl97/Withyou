@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import com.example.withyou.ui.theme.AppSpacing
@@ -38,6 +39,8 @@ fun LoginScreen(
 
     val context = LocalContext.current
     val activity = context as Activity
+    val isLoading = viewModel.isLoading.value
+    val errorMessage = viewModel.errorMessage.value
 
     Column(
         modifier = Modifier
@@ -73,9 +76,21 @@ fun LoginScreen(
                     activity = activity,
                     onOtpSent = onOtpSent
                 )
-            }
+            },
+            enabled = !isLoading
         ) {
-            Text("Send OTP")
+           if(isLoading){
+               CircularProgressIndicator()
+           }
+            else{
+                Text("Send OTP")
+           }
+
+        }
+        if(errorMessage != null){
+            Text(
+                text = errorMessage
+            )
         }
     }
 }
