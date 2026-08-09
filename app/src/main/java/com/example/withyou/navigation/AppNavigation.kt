@@ -1,8 +1,6 @@
 package com.example.withyou.navigation
 
 import android.annotation.SuppressLint
-import androidx.navigation.NavOptionsBuilder
-
 
 
 import androidx.compose.foundation.layout.padding
@@ -72,8 +70,20 @@ fun AppNavigation() {
             composable(Screen.Splash.route) {
                 SplashScreen(
                     onNavigateToLogin = {
-                        navController.navigate(Screen.Login.route)
-                    }
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.Splash.route) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    onNavigateToHome = {
+                        navController.navigate(Screen.Home.route){
+                            popUpTo(Screen.Splash.route){
+                                inclusive = true
+                            }
+                        }
+                    },
+                    viewModel = hiltViewModel()
                 )
             }
 
@@ -113,7 +123,16 @@ fun AppNavigation() {
 
             // Profile
             composable(Screen.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(
+                    onLogout = {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.Home.route) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    viewModel = hiltViewModel()
+                )
             }
         }
     }

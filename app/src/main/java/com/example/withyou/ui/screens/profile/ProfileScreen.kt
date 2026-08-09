@@ -5,6 +5,6 @@ import androidx.compose.runtime.Composable
 
 
 @Composable
-fun ProfileScreen(){
+fun ProfileScreen(onLogout: () -> Unit, viewModel: Any) {
     Text("Profile screen")
 }

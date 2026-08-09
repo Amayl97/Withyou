@@ -19,4 +19,6 @@ interface AuthenticationRepository{
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     )
+    fun isUserLoggedIn(): Boolean
+    fun logout()
 }

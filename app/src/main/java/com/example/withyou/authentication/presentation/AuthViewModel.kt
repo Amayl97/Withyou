@@ -79,5 +79,10 @@ class AuthViewModel @Inject constructor(
     fun clearError(){
         _errorMessage.value = null
     }
-    
+    fun isUserLoggedIn(): Boolean {
+        return repository.isUserLoggedIn()
+    }
+    fun logout() {
+        repository.logout()
+    }
 }
