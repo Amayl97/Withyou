@@ -1,6 +1,7 @@
 package com.example.withyou.ui.screens.splash
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.example.withyou.R
 import com.example.withyou.authentication.presentation.AuthViewModel
 import kotlinx.coroutines.delay
+import com.example.withyou.ui.theme.WhiteBackground
 
 
 @Composable
@@ -34,7 +36,7 @@ fun SplashScreen(
         }
     }
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().background(WhiteBackground),
         contentAlignment = Alignment.Center
         ){
         Column(

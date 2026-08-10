@@ -8,6 +8,8 @@ object AppSpacing{
     val Large = 24.dp
     val ExtraLarge = 32.dp
     val Huge = 48.dp
+    val FullSpace = 100.dp
+    val InputFieldWidth = 300.dp
 }
 
 

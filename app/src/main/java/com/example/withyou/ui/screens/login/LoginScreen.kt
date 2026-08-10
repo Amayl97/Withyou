@@ -1,15 +1,18 @@
 package com.example.withyou.ui.screens.login
 
-
-import android.R
 import android.app.Activity
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -23,10 +26,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.withyou.authentication.presentation.AuthViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.example.withyou.ui.theme.Primary
+import com.example.withyou.ui.theme.WhiteBackground
+
 
 @Composable
 fun LoginScreen(
@@ -45,18 +50,30 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(AppSpacing.Medium),
+            .background(WhiteBackground)
+            .padding(horizontal = AppSpacing.Medium),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text(
-            text = "Login",
-            style = MaterialTheme.typography.bodyLarge
+        Image(
+            painter = painterResource(com.example.withyou.R.drawable.logo),
+            contentDescription = "WithYou Logo",
+            modifier = Modifier.size(160.dp)
         )
 
         Spacer(
-            modifier = Modifier.height(AppSpacing.Medium)
+            modifier = Modifier.height(AppSpacing.Small)
+        )
+
+        Text(
+            text = "Login",
+            style = MaterialTheme.typography.headlineLarge,
+            color = Primary
+        )
+
+        Spacer(
+            modifier = Modifier.height(AppSpacing.Small)
         )
 
         OutlinedTextField(
@@ -65,8 +82,16 @@ fun LoginScreen(
                 phoneNumber = it
             },
             label = {
-                Text("Phone Number")
-            }
+                Text(
+                    text = "Phone Number",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            shape = MaterialTheme.shapes.medium
+        )
+
+        Spacer(
+            modifier = Modifier.height(AppSpacing.Medium)
         )
 
         Button(
@@ -77,19 +102,35 @@ fun LoginScreen(
                     onOtpSent = onOtpSent
                 )
             },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Primary,
+                contentColor = WhiteBackground
+            ),
+            contentPadding = PaddingValues(
+                horizontal = AppSpacing.FullSpace,
+                vertical = AppSpacing.Medium
+            ),
+            shape = MaterialTheme.shapes.medium,
             enabled = !isLoading
         ) {
-           if(isLoading){
-               CircularProgressIndicator()
-           }
-            else{
-                Text("Send OTP")
-           }
-
+            if (isLoading) {
+                CircularProgressIndicator()
+            } else {
+                Text(
+                    text = "Send OTP",
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
         }
-        if(errorMessage != null){
+
+        if (errorMessage != null) {
+            Spacer(
+                modifier = Modifier.height(AppSpacing.Small)
+            )
+
             Text(
-                text = errorMessage
+                text = errorMessage,
+                style = MaterialTheme.typography.bodySmall
             )
         }
     }
