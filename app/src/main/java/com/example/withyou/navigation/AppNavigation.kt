@@ -17,6 +17,8 @@ import com.example.withyou.ui.components.BottomNavigationBar
 import com.example.withyou.ui.screens.home.HomeScreen
 import com.example.withyou.ui.screens.login.LoginScreen
 import com.example.withyou.ui.screens.Otp.OtpScreen
+import com.example.withyou.ui.screens.contacts.ContactsScreen
+import com.example.withyou.ui.screens.profile.EditProfileScreen
 import com.example.withyou.ui.screens.profile.ProfileScreen
 import com.example.withyou.ui.screens.splash.SplashScreen
 import com.example.withyou.ui.screens.upload.UploadScreen
@@ -64,8 +66,9 @@ fun AppNavigation() {
             navController = navController,
             startDestination = Screen.Splash.route,
             modifier = Modifier.padding(innerPadding)
-        ) {
 
+
+        ) {
             // Splash
             composable(Screen.Splash.route) {
                 SplashScreen(
@@ -131,9 +134,25 @@ fun AppNavigation() {
                             }
                         }
                     },
-                    viewModel = hiltViewModel()
+                    onEditProfile = {
+                        navController.navigate(Screen.EditProfile.route)
+                    },
+                    onContacts = {
+                        navController.navigate(Screen.Contacts.route)
+                    }
                 )
             }
+
+
+            composable(Screen.EditProfile.route) {
+                EditProfileScreen()
+            }
+
+            composable(Screen.Contacts.route) {
+                ContactsScreen()
+            }
+
+
         }
     }
 }

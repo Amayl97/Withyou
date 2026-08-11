@@ -59,17 +59,7 @@ fun LoginScreen(
         Image(
             painter = painterResource(com.example.withyou.R.drawable.logo),
             contentDescription = "WithYou Logo",
-            modifier = Modifier.size(160.dp)
-        )
-
-        Spacer(
-            modifier = Modifier.height(AppSpacing.Small)
-        )
-
-        Text(
-            text = "Login",
-            style = MaterialTheme.typography.headlineLarge,
-            color = Primary
+            modifier = Modifier.size(170.dp)
         )
 
         Spacer(

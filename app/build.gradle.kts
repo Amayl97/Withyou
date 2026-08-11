@@ -51,6 +51,8 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.compose.runtime)
     implementation("com.google.firebase:firebase-firestore")
+    implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.ui)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
