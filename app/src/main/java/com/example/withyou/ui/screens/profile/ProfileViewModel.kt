@@ -1,0 +1,50 @@
+package com.example.withyou.ui.screens.profile
+
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
+import com.example.withyou.authentication.data.AuthenticationRepository
+import com.example.withyou.data.model.User
+import com.example.withyou.data.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import androidx.compose.runtime.State
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
+
+@HiltViewModel
+class ProfileViewModel @Inject constructor(
+    private val userRepository: UserRepository,
+    private val authenticationRepository: AuthenticationRepository
+) : ViewModel(){
+    private val _user = mutableStateOf<User?>(null)
+    val user: State<User?> = _user
+    private val _isLoading = mutableStateOf(false)
+    val isLoading: State<Boolean> = _isLoading
+    private val _errorMessage = mutableStateOf<String?>(null)
+    val errorMessage: State<String?> = _errorMessage
+
+    fun loadProfile(){
+        val uid = authenticationRepository.getCurrentUserId()
+        if (uid == null){
+            _errorMessage.value = "User not authenticated"
+            return
+        }
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+
+            try {
+                _user.value = userRepository.getUser(uid)
+            }
+            catch (e: Exception){
+                _errorMessage.value = e.message ?: "Failed to load the Profile"
+            }
+            finally {
+                _isLoading.value= false
+            }
+
+        }
+    }
+
+}

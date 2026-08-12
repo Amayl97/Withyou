@@ -14,19 +14,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,15 +44,32 @@ import com.example.withyou.ui.theme.Border
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
 import androidx.compose.ui.draw.clip
-import androidx.lifecycle.viewmodel.CreationExtras
+
+
 
 
 @Composable
 fun ProfileScreen(
     onLogout: () -> Unit,
     onEditProfile: () -> Unit,
-    onContacts: () -> Unit
+    onContacts: () -> Unit,
+    viewModel: ProfileViewModel
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile()
+    }
+    val user = viewModel.user.value
+    val isLoading = viewModel.isLoading.value
+    val errorMessage = viewModel.errorMessage.value
+    if (isLoading) {
+        LoadingState()
+        return
+    }
+    if (errorMessage != null) {
+        ErrorState()
+        return
+    }
+
     var menuExpanded by remember {
         mutableStateOf(false)
     }
@@ -88,24 +106,22 @@ fun ProfileScreen(
                 )
 
                 Text(
-                    text = "Amayl Tariq",
+                    text = user?.displayName ?: "",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "@amayl_Ot7",
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = "@${user?.username ?: ""}",
+                    style = MaterialTheme.typography.bodyMedium
                 )
-
                 Spacer(
                     modifier = Modifier.height(AppSpacing.ExtraSmall)
                 )
 
                 Text(
-                    text = "Bantan Sonyeondan ✨🌸",
+                    text = user?.bio ?: "",
                     style = MaterialTheme.typography.bodyMedium
                 )
-
                 Spacer(
                     modifier = Modifier.height(AppSpacing.Medium)
                 )
