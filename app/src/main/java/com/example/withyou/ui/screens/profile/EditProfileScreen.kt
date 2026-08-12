@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,14 +38,29 @@ import com.example.withyou.ui.theme.WhiteBackground
 
 @Composable
 fun EditProfileScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: EditProfileViewModel
 ) {
+    val user = viewModel.user.value
+    val isLoading = viewModel.isLoading.value
+
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile()
+    }
+
     var username by remember {
         mutableStateOf("")
     }
 
     var bio by remember {
         mutableStateOf("")
+    }
+
+    LaunchedEffect(user) {
+        user?.let {
+            username = it.username
+            bio = it.bio
+        }
     }
 
     Column(

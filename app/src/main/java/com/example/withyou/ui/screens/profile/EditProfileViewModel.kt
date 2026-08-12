@@ -1,26 +1,27 @@
 package com.example.withyou.ui.screens.profile
 
+import android.view.View
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.withyou.authentication.data.AuthenticationRepository
 import com.example.withyou.data.model.User
 import com.example.withyou.data.repository.UserRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 
-@HiltViewModel
-class ProfileViewModel @Inject constructor(
+
+class EditProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val authenticationRepository: AuthenticationRepository
 ) : ViewModel(){
     private val _user = mutableStateOf<User?>(null)
     val user: State<User?> = _user
+
     private val _isLoading = mutableStateOf(false)
     val isLoading: State<Boolean> = _isLoading
+
     private val _errorMessage = mutableStateOf<String?>(null)
     val errorMessage: State<String?> = _errorMessage
 
@@ -32,7 +33,6 @@ class ProfileViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _isLoading.value = true
-            _errorMessage.value = null
 
             try {
                 _user.value = userRepository.getUser(uid)
@@ -45,10 +45,39 @@ class ProfileViewModel @Inject constructor(
             }
 
         }
-
     }
+    fun updateProfile(
+        username: String,
+        bio: String,
+        onSuccess: () -> Unit
+    ){
+        val currentUser = _user.value
+        if(currentUser == null){
+            _errorMessage.value = "User not found"
+            return
+        }
 
+        val updatedUser = currentUser.copy(
+            username = username,
+            bio = bio
+        )
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
 
+            try {
+                userRepository.updateUser(updatedUser)
 
+                _user.value = updatedUser
+
+                onSuccess()
+            } catch (e: Exception) {
+                _errorMessage.value =
+                    e.message ?: "Failed to update profile"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
 
 }
