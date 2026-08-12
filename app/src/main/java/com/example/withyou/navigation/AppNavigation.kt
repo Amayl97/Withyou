@@ -20,6 +20,7 @@ import com.example.withyou.ui.screens.login.LoginScreen
 import com.example.withyou.ui.screens.Otp.OtpScreen
 import com.example.withyou.ui.screens.contacts.ContactsScreen
 import com.example.withyou.ui.screens.profile.EditProfileScreen
+import com.example.withyou.ui.screens.profile.EditProfileViewModel
 import com.example.withyou.ui.screens.profile.ProfileScreen
 import com.example.withyou.ui.screens.profile.ProfileViewModel
 import com.example.withyou.ui.screens.registration.CompleteProfileScreen
@@ -154,9 +155,12 @@ fun AppNavigation() {
 
 
             composable(Screen.EditProfile.route) {
+                val viewModel: EditProfileViewModel = hiltViewModel()
                 EditProfileScreen( onBack = {
                     navController.popBackStack()
-                })
+                },
+                    viewModel = viewModel
+                    )
             }
 
             composable(Screen.Contacts.route) {

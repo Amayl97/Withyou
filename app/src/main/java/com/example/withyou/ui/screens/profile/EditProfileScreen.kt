@@ -174,7 +174,13 @@ fun EditProfileScreen(
         // Save button
         Button(
             onClick = {
-                // Save data
+                viewModel.updateProfile(
+                    username = username,
+                    bio = bio,
+                    onSuccess = {
+                        onBack()
+                    }
+                )
             },
             modifier = Modifier
                 .fillMaxWidth()

@@ -110,12 +110,15 @@ fun ProfileScreen(
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
+                Spacer(
+                    modifier = Modifier.height(AppSpacing.Small)
+                )
                 Text(
                     text = "@${user?.username ?: ""}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(
-                    modifier = Modifier.height(AppSpacing.ExtraSmall)
+                    modifier = Modifier.height(AppSpacing.Small)
                 )
 
                 Text(
@@ -123,7 +126,7 @@ fun ProfileScreen(
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(
-                    modifier = Modifier.height(AppSpacing.Medium)
+                    modifier = Modifier.height(AppSpacing.Small)
                 )
 
                 Button(

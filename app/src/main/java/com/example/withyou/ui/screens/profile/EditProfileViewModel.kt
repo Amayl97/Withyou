@@ -9,9 +9,10 @@ import com.example.withyou.data.repository.UserRepository
 import javax.inject.Inject
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
-
+@HiltViewModel
 class EditProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val authenticationRepository: AuthenticationRepository
@@ -78,6 +79,7 @@ class EditProfileViewModel @Inject constructor(
                 _isLoading.value = false
             }
         }
+
     }
 
 }
