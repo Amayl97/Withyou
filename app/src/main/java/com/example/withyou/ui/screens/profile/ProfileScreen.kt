@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -42,7 +43,7 @@ import com.example.withyou.ui.theme.Border
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
 import androidx.compose.ui.draw.clip
-
+import androidx.lifecycle.viewmodel.CreationExtras
 
 
 @Composable
@@ -164,6 +165,10 @@ fun ProfileScreen(
                 uploadTime = "24 hours",
             )
 
+//            Just for testing
+//            LoadingState()
+//            ErrorState()
+//            EmptyVideosState()
 
         }
         Box(
@@ -276,3 +281,44 @@ fun VideoCard(
 
 }
 
+@Composable
+fun LoadingState(){
+ Box(
+     modifier = Modifier.fillMaxSize(),
+     contentAlignment = Alignment.Center
+ ){
+     CircularProgressIndicator()
+ }
+}
+
+@Composable
+fun EmptyVideosState(){
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("No videos yet")
+        Text("Upload your first video")
+    }
+}
+
+@Composable
+fun ErrorState(){
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("Something went wrong")
+        Text("Unable to load your profile.")
+
+        Button(
+            onClick = {
+
+            }
+        ) {
+            Text("Retry")
+        }
+    }
+
+}
