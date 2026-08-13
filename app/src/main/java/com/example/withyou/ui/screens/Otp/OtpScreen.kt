@@ -18,13 +18,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.withyou.authentication.presentation.AuthViewModel
 import com.example.withyou.ui.theme.AppSpacing
 
 @Composable
 fun OtpScreen(
-    onVerificationSuccess: () -> Unit,
+    onExistingUser: () -> Unit,
+    onNewUser: () -> Unit,
     viewModel: AuthViewModel
 ) {
     val isLoading = viewModel.isLoading.value
@@ -68,7 +68,8 @@ fun OtpScreen(
             onClick = {
                 viewModel.verifyOtp(
                     otp = otp,
-                    onSuccess = onVerificationSuccess
+                    onExistingUser = onExistingUser,
+                    onNewUser = onNewUser
                 )
             },
             enabled = !isLoading

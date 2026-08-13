@@ -8,6 +8,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -17,7 +18,13 @@ import com.example.withyou.ui.components.BottomNavigationBar
 import com.example.withyou.ui.screens.home.HomeScreen
 import com.example.withyou.ui.screens.login.LoginScreen
 import com.example.withyou.ui.screens.Otp.OtpScreen
+import com.example.withyou.ui.screens.contacts.ContactsScreen
+import com.example.withyou.ui.screens.profile.EditProfileScreen
+import com.example.withyou.ui.screens.profile.EditProfileViewModel
 import com.example.withyou.ui.screens.profile.ProfileScreen
+import com.example.withyou.ui.screens.profile.ProfileViewModel
+import com.example.withyou.ui.screens.registration.CompleteProfileScreen
+import com.example.withyou.ui.screens.registration.CompleteProfileViewModel
 import com.example.withyou.ui.screens.splash.SplashScreen
 import com.example.withyou.ui.screens.upload.UploadScreen
 
@@ -64,8 +71,9 @@ fun AppNavigation() {
             navController = navController,
             startDestination = Screen.Splash.route,
             modifier = Modifier.padding(innerPadding)
-        ) {
 
+
+        ) {
             // Splash
             composable(Screen.Splash.route) {
                 SplashScreen(
@@ -106,8 +114,11 @@ fun AppNavigation() {
 
                 OtpScreen(
                     viewModel = viewModel,
-                    onVerificationSuccess = {
+                    onExistingUser = {
                         navController.navigate(Screen.Home.route)
+                    },
+                    onNewUser = {
+                        navController.navigate(Screen.CompleteProfile.route)
                     }
                 )
             }
@@ -123,6 +134,7 @@ fun AppNavigation() {
 
             // Profile
             composable(Screen.Profile.route) {
+                val viewModel: ProfileViewModel = hiltViewModel()
                 ProfileScreen(
                     onLogout = {
                         navController.navigate(Screen.Login.route) {
@@ -131,9 +143,48 @@ fun AppNavigation() {
                             }
                         }
                     },
-                    viewModel = hiltViewModel()
+                    onEditProfile = {
+                        navController.navigate(Screen.EditProfile.route)
+                    },
+                    onContacts = {
+                        navController.navigate(Screen.Contacts.route)
+                    },
+                    viewModel = viewModel
                 )
             }
+
+
+            composable(Screen.EditProfile.route) {
+                val viewModel: EditProfileViewModel = hiltViewModel()
+                EditProfileScreen( onBack = {
+                    navController.popBackStack()
+                },
+                    viewModel = viewModel
+                    )
+            }
+
+            composable(Screen.Contacts.route) {
+                ContactsScreen()
+            }
+
+            composable(Screen.CompleteProfile.route) {
+                val viewModel: CompleteProfileViewModel = hiltViewModel()
+
+                CompleteProfileScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onProfileCreated = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.CompleteProfile.route) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    viewModel = viewModel
+                )
+            }
+
         }
     }
 }

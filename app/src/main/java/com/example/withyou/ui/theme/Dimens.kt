@@ -9,6 +9,7 @@ object AppSpacing{
     val ExtraLarge = 32.dp
     val Huge = 48.dp
     val FullSpace = 100.dp
+    val thumbnailHeight = 200.dp
     val InputFieldWidth = 300.dp
 }
 

@@ -5,14 +5,19 @@ import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.withyou.authentication.data.AuthenticationRepository
+import com.example.withyou.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.launch
 
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val repository: AuthenticationRepository,
+    private val userRepository: UserRepository
 
 ): ViewModel(){
     private var verificationId: String? = null
@@ -52,7 +57,8 @@ class AuthViewModel @Inject constructor(
 
     fun verifyOtp(
         otp: String,
-        onSuccess: () -> Unit
+        onExistingUser: () -> Unit,
+        onNewUser: () -> Unit
     ) {
         _isLoading.value = true
         Log.d("OTP_VERIFY", "verifyOtp called with OTP: $otp")
@@ -68,8 +74,30 @@ class AuthViewModel @Inject constructor(
             verificationId = id,
             otp = otp,
             onSuccess = {
-                _isLoading.value = false
-                onSuccess()
+                Log.d("AUTH_FLOW", "OTP verification SUCCESS")
+
+                val uid = repository.getCurrentUserId()
+                Log.d("AUTH_FLOW", "UID = $uid")
+
+                if (uid != null) {
+                    viewModelScope.launch {
+                        Log.d("AUTH_FLOW", "Getting user from Firestore")
+
+                        val user = userRepository.getUser(uid)
+
+                        Log.d("AUTH_FLOW", "User = $user")
+
+                        _isLoading.value = false
+
+                        if (user != null) {
+                            Log.d("AUTH_FLOW", "EXISTING USER")
+                            onExistingUser()
+                        } else {
+                            Log.d("AUTH_FLOW", "NEW USER")
+                            onNewUser()
+                        }
+                    }
+                }
             },
             onError = { error ->
                 // We'll handle this properly with UI state later
