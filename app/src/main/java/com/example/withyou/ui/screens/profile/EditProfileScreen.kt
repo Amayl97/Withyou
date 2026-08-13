@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +47,7 @@ fun EditProfileScreen(
 ) {
     val user = viewModel.user.value
     val isLoading = viewModel.isLoading.value
+    val errorMessage = viewModel.errorMessage.value
 
     val selectedImageUri= viewModel.selectedImageUri.value
 
@@ -195,6 +197,17 @@ fun EditProfileScreen(
             modifier = Modifier.height(AppSpacing.Medium)
         )
 
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Spacer(
+                modifier = Modifier.height(AppSpacing.Small)
+            )
+        }
         // Save button
         Button(
             onClick = {
@@ -206,6 +219,7 @@ fun EditProfileScreen(
                     }
                 )
             },
+            enabled = !isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -215,11 +229,15 @@ fun EditProfileScreen(
             ),
             shape = MaterialTheme.shapes.medium
         ) {
-            Text(
-                text = "Save",
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold
-            )
+            if (isLoading) {
+                CircularProgressIndicator()
+            } else {
+                Text(
+                    text = "Save",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
     }
 }

@@ -53,12 +53,41 @@ class EditProfileViewModel @Inject constructor(
     fun selectProfileImage(uri: Uri?){
         _selectedImageUri.value = uri
     }
+    private fun validateInput(
+        username: String,
+        bio: String
+    ): String? {
 
+        if (username.isBlank()) {
+            return "Username cannot be empty"
+        }
+
+        if (username.length < 3 || username.length > 20) {
+            return "Username must be between 3 and 20 characters"
+        }
+
+        if (!username.matches(Regex("^[a-zA-Z0-9_.]+$"))) {
+            return "Username can only contain letters, numbers, _ and ."
+        }
+
+        if (bio.length > 150) {
+            return "Bio cannot exceed 150 characters"
+        }
+
+        return null
+    }
     fun updateProfile(
         username: String,
         bio: String,
         onSuccess: () -> Unit
     ){
+        val validationError = validateInput(username, bio)
+
+        if (validationError != null) {
+            _errorMessage.value = validationError
+            return
+        }
+
         val currentUser = _user.value
         if(currentUser == null){
             _errorMessage.value = "User not found"
