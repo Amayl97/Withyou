@@ -44,8 +44,7 @@ import com.example.withyou.ui.theme.Border
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
 import androidx.compose.ui.draw.clip
-
-
+import coil3.compose.AsyncImage
 
 
 @Composable
@@ -93,14 +92,31 @@ fun ProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Image(
-                    painter = painterResource(R.drawable.avatar),
-                    contentDescription = "Profile picture",
-                    modifier = Modifier
-                        .size(90.dp)
-                        .clip(MaterialTheme.shapes.extraLarge)
-                )
+                if (user?.profileImagePath.isNullOrBlank()) {
 
+
+
+                    Image(
+                        painter = painterResource(R.drawable.avatar),
+                        contentDescription = "Profile picture",
+                        modifier = Modifier
+                            .size(90.dp)
+                            .clip(MaterialTheme.shapes.extraLarge),
+                        contentScale = ContentScale.Crop
+                    )
+
+                } else {
+
+
+                    AsyncImage(
+                        model = user?.profileImagePath,
+                        contentDescription = "Profile picture",
+                        modifier = Modifier
+                            .size(90.dp)
+                            .clip(MaterialTheme.shapes.extraLarge),
+                        contentScale = ContentScale.Crop
+                    )
+                }
                 Spacer(
                     modifier = Modifier.height(AppSpacing.Small)
                 )

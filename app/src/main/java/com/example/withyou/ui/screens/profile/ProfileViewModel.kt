@@ -1,5 +1,6 @@
 package com.example.withyou.ui.screens.profile
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.withyou.authentication.data.AuthenticationRepository
@@ -9,7 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -33,6 +33,16 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
+            try {
+                _user.value = userRepository.getUser(uid)
+
+                Log.d(
+                    "PROFILE_IMAGE",
+                    "Image path = ${_user.value?.profileImagePath}"
+                )
+            }catch (e: Exception){
+                _errorMessage.value = e.message ?: "Failed to load the Profile Image"
+            }
 
             try {
                 _user.value = userRepository.getUser(uid)

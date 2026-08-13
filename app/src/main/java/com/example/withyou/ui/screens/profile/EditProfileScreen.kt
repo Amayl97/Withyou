@@ -1,5 +1,8 @@
 package com.example.withyou.ui.screens.profile
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import coil3.compose.AsyncImage
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -44,6 +47,15 @@ fun EditProfileScreen(
     val user = viewModel.user.value
     val isLoading = viewModel.isLoading.value
 
+    val selectedImageUri= viewModel.selectedImageUri.value
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) {
+        uri ->
+        uri?.let { viewModel.selectProfileImage(it) }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.loadProfile()
     }
@@ -84,14 +96,25 @@ fun EditProfileScreen(
         )
 
         // Profile image
-        Image(
-            painter = painterResource(R.drawable.avatar),
-            contentDescription = "Profile Picture",
-            modifier = Modifier
-                .size(90.dp)
-                .clip(MaterialTheme.shapes.extraLarge)
-                .align(Alignment.CenterHorizontally)
-        )
+        if (selectedImageUri != null) {
+            AsyncImage(
+                model = selectedImageUri,
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(90.dp)
+                    .clip(MaterialTheme.shapes.extraLarge)
+                    .align(Alignment.CenterHorizontally)
+            )
+        } else {
+            Image(
+                painter = painterResource(R.drawable.avatar),
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(90.dp)
+                    .clip(MaterialTheme.shapes.extraLarge)
+                    .align(Alignment.CenterHorizontally)
+            )
+        }
 
         Spacer(
             modifier = Modifier.height(AppSpacing.Medium)
@@ -101,6 +124,7 @@ fun EditProfileScreen(
         Button(
             onClick = {
                 // Change Photo
+                imagePickerLauncher.launch("image/*")
             },
             border = BorderStroke(
                 width = 1.dp,
@@ -199,3 +223,4 @@ fun EditProfileScreen(
         }
     }
 }
+
