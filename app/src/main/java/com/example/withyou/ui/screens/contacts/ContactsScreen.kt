@@ -4,14 +4,24 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.withyou.data.model.Contact
@@ -59,44 +69,61 @@ fun ContactsScreen(
     }
 
     // Displays different UI depending on the current screen state.
-    when {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
 
-        uiState.isLoading -> {
-            LoadingContent()
-        }
+        Text(
+            text = "Contacts",
+            modifier = Modifier.padding(16.dp)
+        )
 
-        uiState.isPermissionDenied -> {
-            PermissionDeniedContent()
-        }
+        when {
 
-        uiState.error != null -> {
-            ErrorContent(
-                message = uiState.error ?: "Something went wrong"
-            )
-        }
+            uiState.isLoading -> {
+                LoadingContent()
+            }
 
-        uiState.contacts.isEmpty() -> {
-            EmptyContactsContent()
-        }
+            uiState.isPermissionDenied -> {
+                PermissionDeniedContent()
+            }
 
-        else -> {
-            ContactsList(
-                contacts = uiState.contacts
-            )
+            uiState.error != null -> {
+                ErrorContent(
+                    message = uiState.error ?: "Something went wrong"
+                )
+            }
+
+            uiState.contacts.isEmpty() -> {
+                EmptyContactsContent()
+            }
+
+            else -> {
+                ContactsList(
+                    contacts = uiState.contacts,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }
 
 @Composable
 fun ContactsList(
-    contacts: List<Contact>
+    contacts: List<Contact>,
+    modifier: Modifier = Modifier
 ) {
-    LazyColumn {
+    LazyColumn(
+        modifier = modifier
+    ) {
 
-        items(contacts) { contact ->
+        items(
+            items = contacts,
+            key = { contact -> contact.id }
+        ) { contact ->
 
-            Text(
-                text = contact.name
+            ContactItem(
+                contact = contact
             )
         }
     }
@@ -113,8 +140,8 @@ fun EmptyContactsContent() {
 fun ErrorContent(
     message: String
 ) {
-    Text(
-        text = message
+    ContactsStateContent(
+        message = message
     )
 }
 
@@ -127,7 +154,31 @@ fun PermissionDeniedContent() {
 
 @Composable
 fun LoadingContent() {
-    Text(
-        text = "Loading contacts..."
-    )
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProgressIndicator()
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Text(
+            text = "Loading contacts..."
+        )
+    }
+}
+@Composable
+fun ContactsStateContent(
+    message: String
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = message)
+    }
 }
