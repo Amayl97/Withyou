@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.withyou"
     compileSdk {
-        version = release(36) {
+        version = release(37) {
             minorApiLevel = 1
         }
     }
@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.material3)
+    implementation(libs.ui)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
