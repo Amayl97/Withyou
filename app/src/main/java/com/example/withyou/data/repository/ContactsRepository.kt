@@ -3,13 +3,15 @@ package com.example.withyou.data.repository
 import android.content.Context
 import android.provider.ContactsContract
 import com.example.withyou.data.model.Contact
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
 //    In this class we will read contacts from android
 // Repository responsible for reading contact data
 // from the Android device using ContactsContract.
 // It converts Android contact data into our app's Contact model.
-class ContactsRepository(
-    private val context: Context
+class ContactsRepository @Inject constructor(
+    @ApplicationContext private val context: Context
 ){
 
 fun getContact(): List<Contact>{

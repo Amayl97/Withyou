@@ -7,5 +7,6 @@ import com.example.withyou.data.model.Contact
 data class ContactsUiState(
     val contacts: List<Contact> = emptyList(),
     val isLoading: Boolean = false,
+    val isPermissionDenied: Boolean = false,
     val error: String? = null
 )
