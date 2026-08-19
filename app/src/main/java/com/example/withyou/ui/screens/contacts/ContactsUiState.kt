@@ -2,10 +2,14 @@ package com.example.withyou.ui.screens.contacts
 
 import com.example.withyou.data.model.Contact
 
-// Represents the current UI state of the Contacts screen,
-// including the contact list, loading state, and possible errors.
 data class ContactsUiState(
+
+    // The contacts currently displayed on the screen.
     val contacts: List<Contact> = emptyList(),
+
+    // Stores what the user types in the search bar.
+    val searchQuery: String = "",
+
     val isLoading: Boolean = false,
     val isPermissionDenied: Boolean = false,
     val error: String? = null

@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.withyou.data.model.Contact
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 
 @Composable
 fun ContactsScreen(
@@ -73,9 +81,42 @@ fun ContactsScreen(
         modifier = Modifier.fillMaxSize()
     ) {
 
-        Text(
-            text = "Contacts",
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Text(
+                text = "Contacts"
+            )
+
+            // Reloads the latest contacts from the device.
+            IconButton(
+                onClick = {
+                    viewModel.loadContacts()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Refresh contacts"
+                )
+            }
+        }
+
+        OutlinedTextField(
+            value = uiState.searchQuery,
+            onValueChange = { query ->
+                viewModel.onSearchQueryChanged(query)
+            },
+            label = {
+                Text("Search contacts")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
         )
 
         when {
@@ -95,7 +136,11 @@ fun ContactsScreen(
             }
 
             uiState.contacts.isEmpty() -> {
-                EmptyContactsContent()
+                if (uiState.searchQuery.isNotBlank()) {
+                    NoSearchResultsContent()
+                } else {
+                    EmptyContactsContent()
+                }
             }
 
             else -> {
@@ -129,12 +174,6 @@ fun ContactsList(
     }
 }
 
-@Composable
-fun EmptyContactsContent() {
-    Text(
-        text = "No contacts found."
-    )
-}
 
 @Composable
 fun ErrorContent(
@@ -169,6 +208,18 @@ fun LoadingContent() {
             text = "Loading contacts..."
         )
     }
+}
+@Composable
+fun NoSearchResultsContent() {
+    ContactsStateContent(
+        message = "No results found."
+    )
+}
+@Composable
+fun EmptyContactsContent() {
+    ContactsStateContent(
+        message = "No contacts found."
+    )
 }
 @Composable
 fun ContactsStateContent(
