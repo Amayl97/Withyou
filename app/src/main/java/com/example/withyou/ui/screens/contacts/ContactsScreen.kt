@@ -1,6 +1,7 @@
 package com.example.withyou.ui.screens.contacts
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,13 +33,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBar
+import androidx.navigation.NavController
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContactsScreen(
+    navController: NavController,
     viewModel: ContactsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val inviteMessage =
+        "Join me on WithYou! Download the app and stay connected."
 
     // Collects the current state from ContactsViewModel.
     // Whenever the state changes, this screen recomposes.
@@ -81,31 +91,42 @@ fun ContactsScreen(
         modifier = Modifier.fillMaxSize()
     ) {
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Text(
-                text = "Contacts"
-            )
-
-            // Reloads the latest contacts from the device.
-            IconButton(
-                onClick = {
-                    viewModel.loadContacts()
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = "Refresh contacts"
+        TopAppBar(
+            title = {
+                Text(
+                    text = "Contacts"
                 )
-            }
-        }
+            },
 
+            navigationIcon = {
+                IconButton(
+                    onClick = {
+                        // Goes back to the previous screen.
+                        // This is handled by the Navigation back stack.
+                        navController.popBackStack()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            },
+
+            actions = {
+                IconButton(
+                    onClick = {
+                        // Reloads the latest contacts from the device.
+                        viewModel.loadContacts()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Refresh contacts"
+                    )
+                }
+            }
+        )
         OutlinedTextField(
             value = uiState.searchQuery,
             onValueChange = { query ->
@@ -146,6 +167,25 @@ fun ContactsScreen(
             else -> {
                 ContactsList(
                     contacts = uiState.contacts,
+                    onInviteClick = {
+
+                        val shareIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            type = "text/plain"
+
+                            putExtra(
+                                Intent.EXTRA_TEXT,
+                                inviteMessage
+                            )
+                        }
+
+                        val chooserIntent = Intent.createChooser(
+                            shareIntent,
+                            "Invite via"
+                        )
+
+                        context.startActivity(chooserIntent)
+                    },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -156,6 +196,7 @@ fun ContactsScreen(
 @Composable
 fun ContactsList(
     contacts: List<Contact>,
+    onInviteClick: (Contact) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -168,7 +209,8 @@ fun ContactsList(
         ) { contact ->
 
             ContactItem(
-                contact = contact
+                contact = contact,
+                onInviteClick = onInviteClick
             )
         }
     }

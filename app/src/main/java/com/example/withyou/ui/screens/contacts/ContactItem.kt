@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,6 +24,7 @@ import com.example.withyou.ui.theme.WhiteBackground
 @Composable
 fun ContactItem(
     contact: Contact,
+    onInviteClick: (Contact) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -71,6 +73,19 @@ fun ContactItem(
 
             Text(
                 text = contact.phoneNumber
+            )
+        }
+        Spacer(
+            modifier = Modifier.weight(1f)
+        )
+
+        Button(
+            onClick = {
+                onInviteClick(contact)
+            }
+        ) {
+            Text(
+                text = "Invite"
             )
         }
     }

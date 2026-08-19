@@ -164,7 +164,9 @@ fun AppNavigation() {
             }
 
             composable(Screen.Contacts.route) {
-                ContactsScreen()
+                ContactsScreen(
+                    navController = navController
+                )
             }
 
             composable(Screen.CompleteProfile.route) {
