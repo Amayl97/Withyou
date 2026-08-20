@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
 
 @HiltViewModel
 class UploadViewModel @Inject constructor(
-    private val videoMetadataReader: VideoMetadataReader
+    private val videoMetadataReader: VideoMetadataReader,
+    private val videoValidator: VideoValidator
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UploadUiState())
@@ -21,9 +22,16 @@ class UploadViewModel @Inject constructor(
 
         val videoInfo = videoMetadataReader.getVideoInfo(uri)
 
+        val validationError = videoValidator.validate(videoInfo)
+
         _uiState.value = _uiState.value.copy(
             selectedVideoUri = uri,
-            videoInfo = videoInfo
+            videoInfo = if (validationError == null) {
+                videoInfo
+            } else {
+                null
+            },
+            validationError = validationError
         )
     }
 }

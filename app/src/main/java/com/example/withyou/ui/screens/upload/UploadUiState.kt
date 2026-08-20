@@ -4,5 +4,6 @@ import android.net.Uri
 
 data class UploadUiState(
     val selectedVideoUri: Uri? = null,
-    val videoInfo: VideoInfo? = null
+    val videoInfo: VideoInfo? = null,
+    val validationError: String? = null
 )
