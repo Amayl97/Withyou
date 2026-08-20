@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.withyou.R
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
@@ -30,7 +30,7 @@ import com.example.withyou.ui.theme.WhiteBackground
 @Composable
 fun UploadScreen() {
 
-    val viewModel: UploadViewModel = viewModel()
+    val viewModel: UploadViewModel = hiltViewModel()
 
     val uiState by viewModel.uiState.collectAsState()
 
@@ -86,12 +86,24 @@ fun UploadScreen() {
             Text("Select Video")
         }
 
-        uiState.selectedVideoUri?.let { uri ->
+        uiState.videoInfo?.let { videoInfo ->
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Selected video: $uri"
+                text = "File name: ${videoInfo.fileName}"
+            )
+
+            Text(
+                text = "Duration: ${videoInfo.duration} ms"
+            )
+
+            Text(
+                text = "File size: ${videoInfo.fileSize} bytes"
+            )
+
+            Text(
+                text = "Type: ${videoInfo.mimeType}"
             )
         }
     }
