@@ -20,6 +20,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -85,7 +87,20 @@ fun UploadScreen() {
         ) {
             Text("Select Video")
         }
+        uiState.thumbnail?.let { thumbnail ->
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Image(
+                bitmap = thumbnail.asImageBitmap(),
+                contentDescription = "Video thumbnail",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+                    .clip(MaterialTheme.shapes.large)
+            )
+        }
         uiState.videoInfo?.let { videoInfo ->
 
             Spacer(modifier = Modifier.height(24.dp))
