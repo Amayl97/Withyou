@@ -148,8 +148,17 @@ fun UploadScreen() {
                 },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                isError = uiState.titleError != null
             )
+
+            uiState.titleError?.let { error ->
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
 
 // description of the video
@@ -170,9 +179,39 @@ fun UploadScreen() {
                     .fillMaxWidth()
                     .heightIn(min = 120.dp),
                 maxLines = 5,
-                shape = RoundedCornerShape(12.dp)
-
+                shape = RoundedCornerShape(12.dp),
+                isError = uiState.descriptionError != null
             )
+
+            uiState.descriptionError?.let { error ->
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+//continue button
+        uiState.selectedVideoUri?.let {
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Primary,
+                    contentColor = WhiteBackground
+                ),
+                shape = MaterialTheme.shapes.medium,
+                onClick = {
+                    viewModel.validateForm()
+                }
+            ) {
+                Text("Upload")
+            }
         }
     }
 

@@ -9,5 +9,7 @@ data class UploadUiState(
     val thumbnail: Bitmap? = null,
     val validationError: String? = null,
     val title: String = "",
-    val description: String = ""
+    val description: String = "",
+    val titleError: String? = null,
+    val descriptionError: String? = null
 )
