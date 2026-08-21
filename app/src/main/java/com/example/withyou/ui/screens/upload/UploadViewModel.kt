@@ -47,4 +47,16 @@ class UploadViewModel @Inject constructor(
             )
         }
     }
+//to set title
+    fun onTitleChanged(title: String) {
+        _uiState.value = _uiState.value.copy(
+            title = title
+        )
+    }
+//to set description
+    fun onDescriptionChanged(description: String) {
+        _uiState.value = _uiState.value.copy(
+            description = description
+        )
+    }
 }

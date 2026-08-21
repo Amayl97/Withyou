@@ -7,5 +7,7 @@ data class UploadUiState(
     val selectedVideoUri: Uri? = null,
     val videoInfo: VideoInfo? = null,
     val thumbnail: Bitmap? = null,
-    val validationError: String? = null
+    val validationError: String? = null,
+    val title: String = "",
+    val description: String = ""
 )
