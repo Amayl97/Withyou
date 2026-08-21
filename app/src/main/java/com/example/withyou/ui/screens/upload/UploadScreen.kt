@@ -52,11 +52,14 @@ fun UploadScreen() {
         verticalArrangement = Arrangement.Center
     ) {
 
-        Image(
-            painter = painterResource(id = R.drawable.static_image),
-            contentDescription = "Upload video",
-            modifier = Modifier.clip(MaterialTheme.shapes.extraLarge)
-        )
+        if (uiState.selectedVideoUri == null) {
+
+            Image(
+                painter = painterResource(id = R.drawable.static_image),
+                contentDescription = "Upload video",
+                modifier = Modifier.clip(MaterialTheme.shapes.extraLarge)
+            )
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -87,6 +90,20 @@ fun UploadScreen() {
         ) {
             Text("Select Video")
         }
+//    video player
+        uiState.selectedVideoUri?.let { videoUri ->
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            VideoPlayer(
+                videoUri = videoUri,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+                    .clip(MaterialTheme.shapes.large)
+            )
+        }
+//        Thumbnail of video
         uiState.thumbnail?.let { thumbnail ->
 
             Spacer(modifier = Modifier.height(24.dp))
