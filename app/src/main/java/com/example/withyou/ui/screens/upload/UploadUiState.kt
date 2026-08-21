@@ -11,5 +11,6 @@ data class UploadUiState(
     val title: String = "",
     val description: String = "",
     val titleError: String? = null,
-    val descriptionError: String? = null
+    val descriptionError: String? = null,
+    val isReadyForUpload: Boolean = false
 )

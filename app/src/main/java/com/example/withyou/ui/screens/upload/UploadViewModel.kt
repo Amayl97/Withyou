@@ -75,9 +75,12 @@ fun onDescriptionChanged(description: String) {
             null
         }
 
+        val isValid = titleError == null && descriptionError == null
+
         _uiState.value = currentState.copy(
             titleError = titleError,
-            descriptionError = descriptionError
+            descriptionError = descriptionError,
+            isReadyForUpload = isValid
         )
     }
 }

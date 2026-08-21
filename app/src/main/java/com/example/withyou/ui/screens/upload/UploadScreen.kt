@@ -212,6 +212,16 @@ fun UploadScreen() {
             ) {
                 Text("Upload")
             }
+            if (uiState.isReadyForUpload) {
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Video is ready for upload",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         }
     }
 
