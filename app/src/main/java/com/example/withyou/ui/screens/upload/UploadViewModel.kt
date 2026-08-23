@@ -1,19 +1,24 @@
 package com.example.withyou.ui.screens.upload
 
+import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.withyou.data.repository.VideoStorageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class UploadViewModel @Inject constructor(
     private val videoMetadataReader: VideoMetadataReader,
     private val videoValidator: VideoValidator,
-    private val videoThumbnailGenerator: VideoThumbnailGenerator
-) : ViewModel() {
+    private val videoThumbnailGenerator: VideoThumbnailGenerator,
+    private val videoStorageRepository: VideoStorageRepository
+) : ViewModel(){
 
     private val _uiState = MutableStateFlow(UploadUiState())
 
@@ -82,5 +87,41 @@ fun onDescriptionChanged(description: String) {
             descriptionError = descriptionError,
             isReadyForUpload = isValid
         )
+    }
+    fun uploadVideo(
+        contentResolver: ContentResolver,
+        userId: String
+    ) {
+        val currentState = _uiState.value
+        val videoUri = currentState.selectedVideoUri ?: return
+
+        viewModelScope.launch {
+
+            _uiState.value = _uiState.value.copy(
+                isUploading = true
+            )
+
+            try {
+                val videoId = videoStorageRepository.generateVideoId()
+
+                val uploadedVideoPath = videoStorageRepository.uploadVideo(
+                    contentResolver = contentResolver,
+                    videoUri = videoUri,
+                    userId = userId,
+                    videoId = videoId
+                )
+
+                _uiState.value = _uiState.value.copy(
+                    isUploading = false,
+                    uploadedVideoPath = uploadedVideoPath
+                )
+
+            } catch (e: Exception) {
+
+                _uiState.value = _uiState.value.copy(
+                    isUploading = false
+                )
+            }
+        }
     }
 }
