@@ -12,5 +12,8 @@ data class UploadUiState(
     val description: String = "",
     val titleError: String? = null,
     val descriptionError: String? = null,
-    val isReadyForUpload: Boolean = false
+    val isReadyForUpload: Boolean = false,
+    val isUploading: Boolean = false,
+    val uploadedVideoPath: String? = null,
+    val uploadError: String? = null
 )

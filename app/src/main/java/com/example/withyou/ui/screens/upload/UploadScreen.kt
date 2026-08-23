@@ -27,12 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.withyou.R
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun UploadScreen() {
@@ -41,6 +43,8 @@ fun UploadScreen() {
 
     val uiState by viewModel.uiState.collectAsState()
 
+    val context = LocalContext.current
+
     val videoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -48,6 +52,8 @@ fun UploadScreen() {
             viewModel.onVideoSelected(uri)
         }
     }
+    val currentUser = FirebaseAuth.getInstance().currentUser
+
 
     Column(
         modifier = Modifier
@@ -206,11 +212,23 @@ fun UploadScreen() {
                     contentColor = WhiteBackground
                 ),
                 shape = MaterialTheme.shapes.medium,
+                enabled = !uiState.isUploading,
                 onClick = {
-                    viewModel.validateForm()
+                    val currentUser = FirebaseAuth.getInstance().currentUser
+
+                    if (currentUser != null) {
+                        viewModel.validateAndUpload(
+                            contentResolver = context.contentResolver,
+                            userId = currentUser.uid
+                        )
+                    }
                 }
             ) {
-                Text("Upload")
+                if (uiState.isUploading) {
+                    Text("Uploading...")
+                } else {
+                    Text("Upload")
+                }
             }
             if (uiState.isReadyForUpload) {
 
