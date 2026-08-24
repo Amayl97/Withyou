@@ -2,7 +2,6 @@ package com.example.withyou.ui.screens.upload
 
 import android.content.ContentResolver
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.withyou.data.repository.VideoStorageRepository
@@ -114,11 +113,12 @@ fun onDescriptionChanged(description: String) {
         viewModelScope.launch {
 
             _uiState.value = _uiState.value.copy(
-                isUploading = true
+                isUploading = true,
+                uploadError = null
             )
 
             try {
-                Log.d("VideoUpload", "Starting upload")
+
                 val videoId = videoStorageRepository.generateVideoId()
 
                 val uploadedVideoPath = videoStorageRepository.uploadVideo(
@@ -127,11 +127,6 @@ fun onDescriptionChanged(description: String) {
                     userId = userId,
                     videoId = videoId
                 )
-                Log.d("VideoUpload", "Upload successful: $uploadedVideoPath")
-                Log.d(
-                    "VideoUpload",
-                    "Upload successful: $uploadedVideoPath"
-                )
                 _uiState.value = _uiState.value.copy(
                     isUploading = false,
                     uploadedVideoPath = uploadedVideoPath,
@@ -139,14 +134,10 @@ fun onDescriptionChanged(description: String) {
                 )
 
             } catch (e: Exception) {
-                Log.e(
-                    "VideoUpload",
-                    "Upload failed",
-                    e
-                )
+
                 _uiState.value = _uiState.value.copy(
-                    isUploading = true,
-                    uploadError = null
+                    isUploading = false,
+                    uploadError = e.message ?: "Video upload failed"
                 )
             }
         }

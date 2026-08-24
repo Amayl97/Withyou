@@ -16,7 +16,7 @@ class VideoStorageRepository @Inject constructor(
     }
 
     fun createVideoPath(userId: String, videoId: String): String {
-        return "videos/$userId/$videoId.mp4"
+        return "$userId/$videoId.mp4"
     }
 
     suspend fun uploadVideo(
@@ -34,6 +34,7 @@ class VideoStorageRepository @Inject constructor(
                 inputStream.readBytes()
             }
             ?: throw IllegalStateException("Unable to read selected video")
+
 
         supabaseClient.storage
             .from("videos")

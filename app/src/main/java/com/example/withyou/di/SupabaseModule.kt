@@ -1,6 +1,7 @@
 package com.example.withyou.di
 
 import com.example.withyou.BuildConfig
+import com.example.withyou.authentication.data.AuthenticationRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,11 +17,19 @@ object SupabaseModule {
 
     @Provides
     @Singleton
-    fun provideSupabaseClient(): SupabaseClient {
+    fun provideSupabaseClient(
+        authenticationRepository: AuthenticationRepository
+    ): SupabaseClient {
+
         return createSupabaseClient(
             supabaseUrl = BuildConfig.SUPABASE_URL,
             supabaseKey = BuildConfig.SUPABASE_KEY
         ) {
+
+            accessToken = {
+                authenticationRepository.getFirebaseIdToken()
+            }
+
             install(Storage)
         }
     }
