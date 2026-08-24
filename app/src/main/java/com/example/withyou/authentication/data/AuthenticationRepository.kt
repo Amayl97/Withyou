@@ -22,4 +22,5 @@ interface AuthenticationRepository{
     fun isUserLoggedIn(): Boolean
     fun logout()
     fun getCurrentUserId(): String?
+    suspend fun getFirebaseIdToken(): String?
 }

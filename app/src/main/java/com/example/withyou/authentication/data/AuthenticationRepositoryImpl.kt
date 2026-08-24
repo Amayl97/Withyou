@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -92,5 +93,14 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     override fun getCurrentUserId(): String? {
         return firebaseAuth.currentUser?.uid
+    }
+    override suspend fun getFirebaseIdToken(): String? {
+        val user = firebaseAuth.currentUser ?: return null
+
+        return try {
+            user.getIdToken(false).await().token
+        } catch (e: Exception) {
+            null
+        }
     }
 }
