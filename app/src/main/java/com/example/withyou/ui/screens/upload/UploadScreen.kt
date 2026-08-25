@@ -16,11 +16,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,7 +32,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.withyou.R
+import com.example.withyou.ui.screens.contacts.ContactsViewModel
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
 
@@ -38,8 +42,16 @@ import com.example.withyou.ui.theme.WhiteBackground
 fun UploadScreen() {
 
     val viewModel: UploadViewModel = hiltViewModel()
+    val contactsViewModel: ContactsViewModel = hiltViewModel()
 
     val uiState by viewModel.uiState.collectAsState()
+    val contactsUiState by contactsViewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(uiState.visibility) {
+        if (uiState.visibility == "selected_contacts") {
+            contactsViewModel.loadContacts()
+        }
+    }
 
     val context = LocalContext.current
 
@@ -253,6 +265,53 @@ fun UploadScreen() {
                     )
 
                     Text("Selected contacts")
+                }
+                if (uiState.visibility == "selected_contacts") {
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (contactsUiState.isLoading) {
+
+                        Text(
+                            text = "Loading contacts..."
+                        )
+
+                    } else if (contactsUiState.error != null) {
+
+                        Text(
+                            text = contactsUiState.error!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+
+                    } else {
+
+                        contactsUiState.contacts.forEach { contact ->
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+
+                                Checkbox(
+                                    checked = uiState.selectedContacts.any {
+                                        it.id == contact.id
+                                    },
+                                    onCheckedChange = {
+                                        viewModel.onContactSelected(contact)
+                                    }
+                                )
+
+                                Column {
+                                    Text(text = contact.name)
+
+                                    Text(
+                                        text = contact.phoneNumber,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
