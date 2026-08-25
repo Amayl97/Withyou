@@ -1,5 +1,6 @@
 package com.example.withyou.ui.screens.upload
 
+import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -31,12 +32,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.withyou.R
 import com.example.withyou.ui.screens.contacts.ContactsViewModel
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
+import java.util.jar.Manifest
 
 @Composable
 fun UploadScreen() {
@@ -46,15 +49,39 @@ fun UploadScreen() {
 
     val uiState by viewModel.uiState.collectAsState()
     val contactsUiState by contactsViewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(uiState.visibility) {
-        if (uiState.visibility == "selected_contacts") {
-            contactsViewModel.loadContacts()
-        }
-    }
-
     val context = LocalContext.current
 
+    val contactsPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+
+            if (isGranted) {
+                contactsViewModel.loadContacts()
+            } else {
+                contactsViewModel.onPermissionDenied()
+            }
+        }
+
+    LaunchedEffect(uiState.visibility) {
+
+        if (uiState.visibility == "selected_contacts") {
+
+            val permissionGranted =
+                ContextCompat.checkSelfPermission(
+                    context,
+                    "android.permission.READ_CONTACTS"
+                ) == PackageManager.PERMISSION_GRANTED
+
+            if (permissionGranted) {
+                contactsViewModel.loadContacts()
+            } else {
+                contactsPermissionLauncher.launch(
+                    "android.permission.READ_CONTACTS"
+                )
+            }
+        }
+    }
     val videoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.withyou.data.model.Contact
 import com.example.withyou.data.model.Video
+import com.example.withyou.data.repository.UserRepository
 import com.example.withyou.data.repository.VideoRepository
 import com.example.withyou.data.repository.VideoStorageRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -24,7 +25,8 @@ class UploadViewModel @Inject constructor(
     private val videoThumbnailGenerator: VideoThumbnailGenerator,
     private val videoStorageRepository: VideoStorageRepository,
     private val videoRepository: VideoRepository,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UploadUiState())
@@ -78,7 +80,17 @@ fun onDescriptionChanged(description: String) {
 fun validateAndUpload(
     contentResolver: ContentResolver
 ){
-        val currentState = _uiState.value
+    val currentState = _uiState.value
+    val contactError =
+        if (
+            currentState.visibility == "selected_contacts" &&
+            currentState.selectedContacts.isEmpty()
+        ) {
+            "Select at least one contact"
+        } else {
+            null
+        }
+
 
         val titleError = if (currentState.title.trim().isEmpty()) {
             "Title is required"
@@ -92,8 +104,10 @@ fun validateAndUpload(
             null
         }
 
-        val isValid = titleError == null &&
+    val isValid =
+        titleError == null &&
                 descriptionError == null &&
+                contactError == null &&
                 currentState.selectedVideoUri != null
 
         _uiState.value = currentState.copy(
@@ -114,7 +128,6 @@ fun validateAndUpload(
     ){
         val currentState = _uiState.value
         val videoUri = currentState.selectedVideoUri ?: return
-        val videoId = UUID.randomUUID().toString()
         val ownerId = auth.currentUser?.uid
             ?: run {
                 _uiState.value = _uiState.value.copy(
@@ -145,7 +158,12 @@ fun validateAndUpload(
                         userId = ownerId,
                         videoId = videoId
                     )
-
+                val allowedContactIds =
+                    if (currentState.visibility == "selected_contacts") {
+                        getAllowedContactIds()
+                    } else {
+                        emptyList()
+                    }
                 // 3. Save video metadata to Firestore
                 val video = Video(
                     id = videoId,
@@ -155,7 +173,7 @@ fun validateAndUpload(
                     videoPath = uploadedVideoPath,
                     thumbnailPath = null,
                     visibility = currentState.visibility,
-                    allowedContactIds = currentState.allowedContactIds,
+                    allowedContactIds = allowedContactIds,
                     createdAt = System.currentTimeMillis(),
                     duration = currentState.videoInfo?.duration ?: 0L
                 )
@@ -204,8 +222,21 @@ fun validateAndUpload(
             }
 
         _uiState.value = _uiState.value.copy(
-            selectedContacts = updatedContacts,
-            allowedContactIds = updatedContacts.map { it.phoneNumber }
+            selectedContacts = updatedContacts
         )
+    }
+
+    private suspend fun getAllowedContactIds(): List<String> {
+
+        val selectedContacts = _uiState.value.selectedContacts
+
+        return selectedContacts.mapNotNull { contact ->
+
+            val user = userRepository.getUserByPhoneNumber(
+                contact.phoneNumber
+            )
+
+            user?.uid
+        }
     }
 }
