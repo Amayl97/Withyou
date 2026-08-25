@@ -4,6 +4,8 @@ import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.withyou.data.model.Video
+import com.example.withyou.data.repository.VideoRepository
 import com.example.withyou.data.repository.VideoStorageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -17,8 +19,9 @@ class UploadViewModel @Inject constructor(
     private val videoMetadataReader: VideoMetadataReader,
     private val videoValidator: VideoValidator,
     private val videoThumbnailGenerator: VideoThumbnailGenerator,
-    private val videoStorageRepository: VideoStorageRepository
-) : ViewModel(){
+    private val videoStorageRepository: VideoStorageRepository,
+    private val videoRepository: VideoRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UploadUiState())
 
@@ -39,7 +42,9 @@ class UploadViewModel @Inject constructor(
                 selectedVideoUri = uri,
                 videoInfo = videoInfo,
                 thumbnail = thumbnail,
-                validationError = null
+                validationError = null,
+                uploadError = null,
+                uploadedVideoPath = null
             )
 
         } else {
@@ -112,31 +117,54 @@ fun onDescriptionChanged(description: String) {
 
         viewModelScope.launch {
 
+            // Upload started
             _uiState.value = _uiState.value.copy(
                 isUploading = true,
-                uploadError = null
+                uploadError = null,
+                uploadedVideoPath = null
             )
 
             try {
 
+                // 1. Generate unique video ID
                 val videoId = videoStorageRepository.generateVideoId()
 
-                val uploadedVideoPath = videoStorageRepository.uploadVideo(
-                    contentResolver = contentResolver,
-                    videoUri = videoUri,
+                // 2. Upload video to Supabase Storage
+                val uploadedVideoPath =
+                    videoStorageRepository.uploadVideo(
+                        contentResolver = contentResolver,
+                        videoUri = videoUri,
+                        userId = userId,
+                        videoId = videoId
+                    )
+
+                // 3. Save video metadata to Firestore
+                val video = Video(
+                    videoId = videoId,
                     userId = userId,
-                    videoId = videoId
+                    title = currentState.title.trim(),
+                    description = currentState.description.trim(),
+                    storagePath = uploadedVideoPath,
+                    createdAt = System.currentTimeMillis()
                 )
+
+                videoRepository.saveVideoMetadata(video)
+
+                // 4. Upload and metadata save succeeded
                 _uiState.value = _uiState.value.copy(
                     isUploading = false,
+                    isReadyForUpload = false,
                     uploadedVideoPath = uploadedVideoPath,
                     uploadError = null
                 )
 
             } catch (e: Exception) {
 
+                // 5. Upload failed
                 _uiState.value = _uiState.value.copy(
                     isUploading = false,
+                    isReadyForUpload = true,
+                    uploadedVideoPath = null,
                     uploadError = e.message ?: "Video upload failed"
                 )
             }

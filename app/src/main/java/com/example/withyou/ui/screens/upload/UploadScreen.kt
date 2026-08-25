@@ -230,13 +230,35 @@ fun UploadScreen() {
                     Text("Upload")
                 }
             }
-            if (uiState.isReadyForUpload) {
+            if (uiState.isUploading) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Video is ready for upload",
+                    text = "Uploading video...",
                     color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+
+            uiState.uploadedVideoPath?.let {
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Video uploaded successfully!",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+
+            uiState.uploadError?.let { error ->
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Upload failed: $error",
+                    color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
