@@ -153,8 +153,8 @@ fun validateAndUpload(
                     description = currentState.description.trim(),
                     videoPath = uploadedVideoPath,
                     thumbnailPath = null,
-                    visibility = "private",
-                    allowedContactIds = emptyList(),
+                    visibility = currentState.visibility,
+                    allowedContactIds = currentState.allowedContactIds,
                     createdAt = System.currentTimeMillis(),
                     duration = currentState.videoInfo?.duration ?: 0L
                 )
@@ -179,5 +179,22 @@ fun validateAndUpload(
                 )
             }
         }
+    }
+
+    fun onVisibilityChanged(visibility: String) {
+        _uiState.value = _uiState.value.copy(
+            visibility = visibility,
+            allowedContactIds = if (visibility != "selected_contacts") {
+                emptyList()
+            } else {
+                _uiState.value.allowedContactIds
+            }
+        )
+    }
+
+    fun onAllowedContactsChanged(contactIds: List<String>) {
+        _uiState.value = _uiState.value.copy(
+            allowedContactIds = contactIds
+        )
     }
 }

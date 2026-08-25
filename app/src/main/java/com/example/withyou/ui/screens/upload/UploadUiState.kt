@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.net.Uri
 
 data class UploadUiState(
+    val visibility: String = "private",
+    val allowedContactIds: List<String> = emptyList(),
     val selectedVideoUri: Uri? = null,
     val videoInfo: VideoInfo? = null,
     val thumbnail: Bitmap? = null,
