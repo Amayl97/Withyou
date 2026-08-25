@@ -7,12 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.withyou.data.model.Video
 import com.example.withyou.data.repository.VideoRepository
 import com.example.withyou.data.repository.VideoStorageRepository
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 @HiltViewModel
 class UploadViewModel @Inject constructor(
@@ -20,7 +22,8 @@ class UploadViewModel @Inject constructor(
     private val videoValidator: VideoValidator,
     private val videoThumbnailGenerator: VideoThumbnailGenerator,
     private val videoStorageRepository: VideoStorageRepository,
-    private val videoRepository: VideoRepository
+    private val videoRepository: VideoRepository,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UploadUiState())
@@ -71,10 +74,9 @@ fun onDescriptionChanged(description: String) {
 }
 
 //    Validate form
-    fun validateAndUpload(
-        contentResolver: ContentResolver,
-        userId: String
-    ) {
+fun validateAndUpload(
+    contentResolver: ContentResolver
+){
         val currentState = _uiState.value
 
         val titleError = if (currentState.title.trim().isEmpty()) {
@@ -102,18 +104,23 @@ fun onDescriptionChanged(description: String) {
         if (!isValid) {
             return
         }
-
-        uploadVideo(
-            contentResolver = contentResolver,
-            userId = userId
-        )
+    uploadVideo(
+        contentResolver = contentResolver
+    )
     }
     fun uploadVideo(
-        contentResolver: ContentResolver,
-        userId: String
-    ) {
+        contentResolver: ContentResolver
+    ){
         val currentState = _uiState.value
         val videoUri = currentState.selectedVideoUri ?: return
+        val videoId = UUID.randomUUID().toString()
+        val ownerId = auth.currentUser?.uid
+            ?: run {
+                _uiState.value = _uiState.value.copy(
+                    uploadError = "User is not logged in"
+                )
+                return
+            }
 
         viewModelScope.launch {
 
@@ -134,21 +141,24 @@ fun onDescriptionChanged(description: String) {
                     videoStorageRepository.uploadVideo(
                         contentResolver = contentResolver,
                         videoUri = videoUri,
-                        userId = userId,
+                        userId = ownerId,
                         videoId = videoId
                     )
 
                 // 3. Save video metadata to Firestore
                 val video = Video(
-                    videoId = videoId,
-                    userId = userId,
+                    id = videoId,
+                    ownerId = ownerId,
                     title = currentState.title.trim(),
                     description = currentState.description.trim(),
-                    storagePath = uploadedVideoPath,
-                    createdAt = System.currentTimeMillis()
+                    videoPath = uploadedVideoPath,
+                    thumbnailPath = null,
+                    visibility = "private",
+                    allowedContactIds = emptyList(),
+                    createdAt = System.currentTimeMillis(),
+                    duration = currentState.videoInfo?.duration ?: 0L
                 )
-
-                videoRepository.saveVideoMetadata(video)
+                videoRepository.saveVideo(video).getOrThrow()
 
                 // 4. Upload and metadata save succeeded
                 _uiState.value = _uiState.value.copy(
