@@ -201,62 +201,63 @@ fun UploadScreen() {
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+            // Privacy
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Who can see this video?",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = uiState.visibility == "private",
+                        onClick = {
+                            viewModel.onVisibilityChanged("private")
+                        }
+                    )
+
+                    Text("Only me")
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = uiState.visibility == "contacts",
+                        onClick = {
+                            viewModel.onVisibilityChanged("contacts")
+                        }
+                    )
+
+                    Text("My contacts")
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = uiState.visibility == "selected_contacts",
+                        onClick = {
+                            viewModel.onVisibilityChanged("selected_contacts")
+                        }
+                    )
+
+                    Text("Selected contacts")
+                }
+            }
         }
 
-        // Privacy
-        Spacer(modifier = Modifier.height(24.dp))
 
-        Text(
-            text = "Who can see this video?",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = uiState.visibility == "private",
-                    onClick = {
-                        viewModel.onVisibilityChanged("private")
-                    }
-                )
-
-                Text("Only me")
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = uiState.visibility == "contacts",
-                    onClick = {
-                        viewModel.onVisibilityChanged("contacts")
-                    }
-                )
-
-                Text("My contacts")
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = uiState.visibility == "selected_contacts",
-                    onClick = {
-                        viewModel.onVisibilityChanged("selected_contacts")
-                    }
-                )
-
-                Text("Selected contacts")
-            }
-        }
 
         // Upload button
         uiState.selectedVideoUri?.let {

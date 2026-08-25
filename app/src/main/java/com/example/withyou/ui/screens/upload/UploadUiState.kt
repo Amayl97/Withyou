@@ -2,6 +2,7 @@ package com.example.withyou.ui.screens.upload
 
 import android.graphics.Bitmap
 import android.net.Uri
+import com.example.withyou.data.model.Contact
 
 data class UploadUiState(
     val visibility: String = "private",
@@ -17,5 +18,6 @@ data class UploadUiState(
     val isReadyForUpload: Boolean = false,
     val isUploading: Boolean = false,
     val uploadedVideoPath: String? = null,
-    val uploadError: String? = null
+    val uploadError: String? = null,
+    val selectedContacts: List<Contact> = emptyList()
 )

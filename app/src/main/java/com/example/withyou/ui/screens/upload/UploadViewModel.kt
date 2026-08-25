@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.withyou.data.model.Contact
 import com.example.withyou.data.model.Video
 import com.example.withyou.data.repository.VideoRepository
 import com.example.withyou.data.repository.VideoStorageRepository
@@ -191,10 +192,20 @@ fun validateAndUpload(
             }
         )
     }
+    fun onContactSelected(contact: Contact) {
 
-    fun onAllowedContactsChanged(contactIds: List<String>) {
+        val currentContacts = _uiState.value.selectedContacts
+
+        val updatedContacts =
+            if (currentContacts.any { it.id == contact.id }) {
+                currentContacts.filter { it.id != contact.id }
+            } else {
+                currentContacts + contact
+            }
+
         _uiState.value = _uiState.value.copy(
-            allowedContactIds = contactIds
+            selectedContacts = updatedContacts,
+            allowedContactIds = updatedContacts.map { it.phoneNumber }
         )
     }
 }
