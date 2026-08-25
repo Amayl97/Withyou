@@ -9,12 +9,17 @@ class VideoRepository @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
 
-    suspend fun saveVideoMetadata(video: Video) {
+    suspend fun saveVideo(video: Video): Result<Unit> {
+        return try {
+            firestore
+                .collection("videos")
+                .document(video.id)
+                .set(video)
+                .await()
 
-        firestore
-            .collection("videos")
-            .document(video.videoId)
-            .set(video)
-            .await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

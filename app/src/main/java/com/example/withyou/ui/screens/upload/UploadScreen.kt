@@ -1,10 +1,11 @@
 package com.example.withyou.ui.screens.upload
 
+import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,35 +17,71 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.withyou.R
+import com.example.withyou.ui.screens.contacts.ContactsViewModel
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
-import com.google.firebase.auth.FirebaseAuth
+import java.util.jar.Manifest
 
 @Composable
 fun UploadScreen() {
 
     val viewModel: UploadViewModel = hiltViewModel()
+    val contactsViewModel: ContactsViewModel = hiltViewModel()
 
     val uiState by viewModel.uiState.collectAsState()
-
+    val contactsUiState by contactsViewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
+    val contactsPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+
+            if (isGranted) {
+                contactsViewModel.loadContacts()
+            } else {
+                contactsViewModel.onPermissionDenied()
+            }
+        }
+
+    LaunchedEffect(uiState.visibility) {
+
+        if (uiState.visibility == "selected_contacts") {
+
+            val permissionGranted =
+                ContextCompat.checkSelfPermission(
+                    context,
+                    "android.permission.READ_CONTACTS"
+                ) == PackageManager.PERMISSION_GRANTED
+
+            if (permissionGranted) {
+                contactsViewModel.loadContacts()
+            } else {
+                contactsPermissionLauncher.launch(
+                    "android.permission.READ_CONTACTS"
+                )
+            }
+        }
+    }
     val videoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -52,8 +89,6 @@ fun UploadScreen() {
             viewModel.onVideoSelected(uri)
         }
     }
-    val currentUser = FirebaseAuth.getInstance().currentUser
-
 
     Column(
         modifier = Modifier
@@ -63,6 +98,7 @@ fun UploadScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
+        // Upload image
         if (uiState.selectedVideoUri == null) {
 
             Image(
@@ -86,6 +122,7 @@ fun UploadScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Select video button
         Button(
             modifier = Modifier
                 .fillMaxWidth()
@@ -101,7 +138,8 @@ fun UploadScreen() {
         ) {
             Text("Select Video")
         }
-//    video player
+
+        // Video player
         uiState.selectedVideoUri?.let { videoUri ->
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -115,7 +153,8 @@ fun UploadScreen() {
                     .clip(MaterialTheme.shapes.large)
             )
         }
-        //video metadata
+
+        // Video metadata
         uiState.videoInfo?.let { videoInfo ->
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -137,15 +176,16 @@ fun UploadScreen() {
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-// title of the video
+        // Title
         uiState.selectedVideoUri?.let {
 
             Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedTextField(
                 value = uiState.title,
-                onValueChange = { viewModel.onTitleChanged(it) },
+                onValueChange = {
+                    viewModel.onTitleChanged(it)
+                },
                 label = {
                     Text("Title")
                 },
@@ -159,6 +199,7 @@ fun UploadScreen() {
             )
 
             uiState.titleError?.let { error ->
+
                 Text(
                     text = error,
                     color = MaterialTheme.colorScheme.error,
@@ -167,14 +208,16 @@ fun UploadScreen() {
             }
         }
 
-// description of the video
+        // Description
         uiState.selectedVideoUri?.let {
 
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
                 value = uiState.description,
-                onValueChange = { viewModel.onDescriptionChanged(it) },
+                onValueChange = {
+                    viewModel.onDescriptionChanged(it)
+                },
                 label = {
                     Text("Description")
                 },
@@ -190,15 +233,119 @@ fun UploadScreen() {
             )
 
             uiState.descriptionError?.let { error ->
+
                 Text(
                     text = error,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+            // Privacy
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Who can see this video?",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = uiState.visibility == "private",
+                        onClick = {
+                            viewModel.onVisibilityChanged("private")
+                        }
+                    )
+
+                    Text("Only me")
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = uiState.visibility == "contacts",
+                        onClick = {
+                            viewModel.onVisibilityChanged("contacts")
+                        }
+                    )
+
+                    Text("My contacts")
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = uiState.visibility == "selected_contacts",
+                        onClick = {
+                            viewModel.onVisibilityChanged("selected_contacts")
+                        }
+                    )
+
+                    Text("Selected contacts")
+                }
+                if (uiState.visibility == "selected_contacts") {
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (contactsUiState.isLoading) {
+
+                        Text(
+                            text = "Loading contacts..."
+                        )
+
+                    } else if (contactsUiState.error != null) {
+
+                        Text(
+                            text = contactsUiState.error!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+
+                    } else {
+
+                        contactsUiState.contacts.forEach { contact ->
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+
+                                Checkbox(
+                                    checked = uiState.selectedContacts.any {
+                                        it.id == contact.id
+                                    },
+                                    onCheckedChange = {
+                                        viewModel.onContactSelected(contact)
+                                    }
+                                )
+
+                                Column {
+                                    Text(text = contact.name)
+
+                                    Text(
+                                        text = contact.phoneNumber,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-        Spacer(modifier = Modifier.height(24.dp))
-//continue button
+
+
+
+        // Upload button
         uiState.selectedVideoUri?.let {
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -214,22 +361,20 @@ fun UploadScreen() {
                 shape = MaterialTheme.shapes.medium,
                 enabled = !uiState.isUploading,
                 onClick = {
-                    val currentUser = FirebaseAuth.getInstance().currentUser
-
-                    if (currentUser != null) {
-                        viewModel.validateAndUpload(
-                            contentResolver = context.contentResolver,
-                            userId = currentUser.uid
-                        )
-                    }
+                    viewModel.validateAndUpload(
+                        contentResolver = context.contentResolver
+                    )
                 }
             ) {
+
                 if (uiState.isUploading) {
                     Text("Uploading...")
                 } else {
                     Text("Upload")
                 }
             }
+
+            // Uploading message
             if (uiState.isUploading) {
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -241,6 +386,7 @@ fun UploadScreen() {
                 )
             }
 
+            // Success message
             uiState.uploadedVideoPath?.let {
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -252,6 +398,7 @@ fun UploadScreen() {
                 )
             }
 
+            // Error message
             uiState.uploadError?.let { error ->
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -264,5 +411,4 @@ fun UploadScreen() {
             }
         }
     }
-
 }

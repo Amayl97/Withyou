@@ -1,10 +1,14 @@
 package com.example.withyou.data.model
 
 data class Video(
-    val videoId: String = "",
-    val userId: String = "",
+    val id: String = "",
+    val ownerId: String = "",
     val title: String = "",
     val description: String = "",
-    val storagePath: String = "",
-    val createdAt: Long = 0L
+    val videoPath: String = "",
+    val thumbnailPath: String? = null,
+    val visibility: String = "private",
+    val allowedContactIds: List<String> = emptyList(),
+    val createdAt: Long = 0L,
+    val duration: Long = 0L
 )
