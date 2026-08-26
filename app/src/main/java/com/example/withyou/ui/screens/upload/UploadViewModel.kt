@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
+
 
 @HiltViewModel
 class UploadViewModel @Inject constructor(
@@ -110,11 +110,12 @@ fun validateAndUpload(
                 contactError == null &&
                 currentState.selectedVideoUri != null
 
-        _uiState.value = currentState.copy(
-            titleError = titleError,
-            descriptionError = descriptionError,
-            isReadyForUpload = isValid
-        )
+    _uiState.value = currentState.copy(
+        titleError = titleError,
+        descriptionError = descriptionError,
+        contactError = contactError,
+        isReadyForUpload = isValid
+    )
 
         if (!isValid) {
             return
@@ -141,6 +142,7 @@ fun validateAndUpload(
             // Upload started
             _uiState.value = _uiState.value.copy(
                 isUploading = true,
+                uploadProgress = 0f,
                 uploadError = null,
                 uploadedVideoPath = null
             )
@@ -179,9 +181,10 @@ fun validateAndUpload(
                 )
                 videoRepository.saveVideo(video).getOrThrow()
 
-                // 4. Upload and metadata save succeeded
+// Upload and metadata save succeeded
                 _uiState.value = _uiState.value.copy(
                     isUploading = false,
+                    uploadProgress = 1f,
                     isReadyForUpload = false,
                     uploadedVideoPath = uploadedVideoPath,
                     uploadError = null
@@ -192,6 +195,7 @@ fun validateAndUpload(
                 // 5. Upload failed
                 _uiState.value = _uiState.value.copy(
                     isUploading = false,
+                    uploadProgress = 0f,
                     isReadyForUpload = true,
                     uploadedVideoPath = null,
                     uploadError = e.message ?: "Video upload failed"
@@ -200,6 +204,16 @@ fun validateAndUpload(
         }
     }
 
+//This prevents retry from starting another upload while one is already running.
+    fun retryUpload(contentResolver: ContentResolver) {
+        if (_uiState.value.isUploading) {
+            return
+        }
+
+        uploadVideo(
+            contentResolver = contentResolver
+        )
+    }
     fun onVisibilityChanged(visibility: String) {
         _uiState.value = _uiState.value.copy(
             visibility = visibility,

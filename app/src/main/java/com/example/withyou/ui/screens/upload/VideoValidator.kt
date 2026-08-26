@@ -5,7 +5,7 @@ import jakarta.inject.Inject
 class VideoValidator @Inject constructor() {
 
     companion object {
-        private const val MAX_VIDEO_SIZE_BYTES = 100L * 1024 * 1024
+        private const val MAX_VIDEO_SIZE_BYTES = 50L * 1024 * 1024
 
         private val SUPPORTED_VIDEO_TYPES = setOf(
             "video/mp4",
@@ -21,7 +21,7 @@ class VideoValidator @Inject constructor() {
         }
 
         if (videoInfo.fileSize > MAX_VIDEO_SIZE_BYTES) {
-            return "Video size must be less than 100 MB."
+            return "Video size must be less than 50 MB."
         }
 
         return null
