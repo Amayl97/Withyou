@@ -141,6 +141,7 @@ fun validateAndUpload(
             // Upload started
             _uiState.value = _uiState.value.copy(
                 isUploading = true,
+                uploadProgress = 0f,
                 uploadError = null,
                 uploadedVideoPath = null
             )
@@ -179,9 +180,10 @@ fun validateAndUpload(
                 )
                 videoRepository.saveVideo(video).getOrThrow()
 
-                // 4. Upload and metadata save succeeded
+// Upload and metadata save succeeded
                 _uiState.value = _uiState.value.copy(
                     isUploading = false,
+                    uploadProgress = 1f,
                     isReadyForUpload = false,
                     uploadedVideoPath = uploadedVideoPath,
                     uploadError = null
@@ -192,6 +194,7 @@ fun validateAndUpload(
                 // 5. Upload failed
                 _uiState.value = _uiState.value.copy(
                     isUploading = false,
+                    uploadProgress = 0f,
                     isReadyForUpload = true,
                     uploadedVideoPath = null,
                     uploadError = e.message ?: "Video upload failed"

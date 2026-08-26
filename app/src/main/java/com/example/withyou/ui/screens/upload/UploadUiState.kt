@@ -19,5 +19,6 @@ data class UploadUiState(
     val isUploading: Boolean = false,
     val uploadedVideoPath: String? = null,
     val uploadError: String? = null,
-    val selectedContacts: List<Contact> = emptyList()
+    val selectedContacts: List<Contact> = emptyList(),
+    val uploadProgress: Float = 0f,
 )

@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -383,6 +384,12 @@ fun UploadScreen() {
                     text = "Uploading video...",
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyLarge
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
