@@ -110,11 +110,12 @@ fun validateAndUpload(
                 contactError == null &&
                 currentState.selectedVideoUri != null
 
-        _uiState.value = currentState.copy(
-            titleError = titleError,
-            descriptionError = descriptionError,
-            isReadyForUpload = isValid
-        )
+    _uiState.value = currentState.copy(
+        titleError = titleError,
+        descriptionError = descriptionError,
+        contactError = contactError,
+        isReadyForUpload = isValid
+    )
 
         if (!isValid) {
             return

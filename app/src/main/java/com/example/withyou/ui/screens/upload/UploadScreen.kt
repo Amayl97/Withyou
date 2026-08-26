@@ -40,7 +40,6 @@ import com.example.withyou.R
 import com.example.withyou.ui.screens.contacts.ContactsViewModel
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
-import java.util.jar.Manifest
 
 @Composable
 fun UploadScreen() {
@@ -50,8 +49,10 @@ fun UploadScreen() {
 
     val uiState by viewModel.uiState.collectAsState()
     val contactsUiState by contactsViewModel.uiState.collectAsStateWithLifecycle()
+
     val context = LocalContext.current
 
+    // Contacts permission launcher
     val contactsPermissionLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
@@ -64,6 +65,8 @@ fun UploadScreen() {
             }
         }
 
+    // Request contacts permission when
+    // "Selected contacts" privacy is chosen
     LaunchedEffect(uiState.visibility) {
 
         if (uiState.visibility == "selected_contacts") {
@@ -83,13 +86,17 @@ fun UploadScreen() {
             }
         }
     }
-    val videoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        if (uri != null) {
-            viewModel.onVideoSelected(uri)
+
+    // Video picker
+    val videoPickerLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri ->
+
+            if (uri != null) {
+                viewModel.onVideoSelected(uri)
+            }
         }
-    }
 
     Column(
         modifier = Modifier
@@ -99,31 +106,47 @@ fun UploadScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
+        // ---------------------------------------------------------
         // Upload image
+        // ---------------------------------------------------------
+
         if (uiState.selectedVideoUri == null) {
 
             Image(
-                painter = painterResource(id = R.drawable.static_image),
+                painter = painterResource(
+                    id = R.drawable.static_image
+                ),
                 contentDescription = "Upload video",
-                modifier = Modifier.clip(MaterialTheme.shapes.extraLarge)
+                modifier = Modifier.clip(
+                    MaterialTheme.shapes.extraLarge
+                )
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
         Text(
             text = "Select a video to share"
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
 
         Text(
             text = "Choose a video from your device"
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
+        // ---------------------------------------------------------
         // Select video button
+        // ---------------------------------------------------------
+
         Button(
             modifier = Modifier
                 .fillMaxWidth()
@@ -140,10 +163,15 @@ fun UploadScreen() {
             Text("Select Video")
         }
 
+        // ---------------------------------------------------------
         // Video player
+        // ---------------------------------------------------------
+
         uiState.selectedVideoUri?.let { videoUri ->
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
 
             VideoPlayer(
                 videoUri = videoUri,
@@ -155,10 +183,15 @@ fun UploadScreen() {
             )
         }
 
+        // ---------------------------------------------------------
         // Video metadata
+        // ---------------------------------------------------------
+
         uiState.videoInfo?.let { videoInfo ->
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
 
             Text(
                 text = "File name: ${videoInfo.fileName}"
@@ -177,10 +210,15 @@ fun UploadScreen() {
             )
         }
 
+        // ---------------------------------------------------------
         // Title
+        // ---------------------------------------------------------
+
         uiState.selectedVideoUri?.let {
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
 
             OutlinedTextField(
                 value = uiState.title,
@@ -209,10 +247,15 @@ fun UploadScreen() {
             }
         }
 
+        // ---------------------------------------------------------
         // Description
+        // ---------------------------------------------------------
+
         uiState.selectedVideoUri?.let {
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
             OutlinedTextField(
                 value = uiState.description,
@@ -241,8 +284,14 @@ fun UploadScreen() {
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+
+            // -----------------------------------------------------
             // Privacy
-            Spacer(modifier = Modifier.height(24.dp))
+            // -----------------------------------------------------
+
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
 
             Text(
                 text = "Who can see this video?",
@@ -250,15 +299,19 @@ fun UploadScreen() {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
 
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
 
+                // Only me
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
                     RadioButton(
                         selected = uiState.visibility == "private",
                         onClick = {
@@ -269,9 +322,11 @@ fun UploadScreen() {
                     Text("Only me")
                 }
 
+                // My contacts
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
                     RadioButton(
                         selected = uiState.visibility == "contacts",
                         onClick = {
@@ -282,21 +337,32 @@ fun UploadScreen() {
                     Text("My contacts")
                 }
 
+                // Selected contacts
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
                     RadioButton(
                         selected = uiState.visibility == "selected_contacts",
                         onClick = {
-                            viewModel.onVisibilityChanged("selected_contacts")
+                            viewModel.onVisibilityChanged(
+                                "selected_contacts"
+                            )
                         }
                     )
 
                     Text("Selected contacts")
                 }
+
+                // -------------------------------------------------
+                // Selected contacts list
+                // -------------------------------------------------
+
                 if (uiState.visibility == "selected_contacts") {
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
 
                     if (contactsUiState.isLoading) {
 
@@ -325,12 +391,17 @@ fun UploadScreen() {
                                         it.id == contact.id
                                     },
                                     onCheckedChange = {
-                                        viewModel.onContactSelected(contact)
+                                        viewModel.onContactSelected(
+                                            contact
+                                        )
                                     }
                                 )
 
                                 Column {
-                                    Text(text = contact.name)
+
+                                    Text(
+                                        text = contact.name
+                                    )
 
                                     Text(
                                         text = contact.phoneNumber,
@@ -339,17 +410,34 @@ fun UploadScreen() {
                                 }
                             }
                         }
+
+                        // Contact validation error
+                        uiState.contactError?.let { error ->
+
+                            Spacer(
+                                modifier = Modifier.height(4.dp)
+                            )
+
+                            Text(
+                                text = error,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }
         }
 
-
-
+        // ---------------------------------------------------------
         // Upload button
+        // ---------------------------------------------------------
+
         uiState.selectedVideoUri?.let {
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
 
             Button(
                 modifier = Modifier
@@ -360,7 +448,10 @@ fun UploadScreen() {
                     contentColor = WhiteBackground
                 ),
                 shape = MaterialTheme.shapes.medium,
+
+                // Prevent duplicate submissions
                 enabled = !uiState.isUploading,
+
                 onClick = {
                     viewModel.validateAndUpload(
                         contentResolver = context.contentResolver
@@ -375,10 +466,15 @@ fun UploadScreen() {
                 }
             }
 
-            // Uploading message
+            // -----------------------------------------------------
+            // Upload progress
+            // -----------------------------------------------------
+
             if (uiState.isUploading) {
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
 
                 Text(
                     text = "Uploading video...",
@@ -386,17 +482,24 @@ fun UploadScreen() {
                     style = MaterialTheme.typography.bodyLarge
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
 
                 LinearProgressIndicator(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
 
-            // Success message
+            // -----------------------------------------------------
+            // Success state
+            // -----------------------------------------------------
+
             uiState.uploadedVideoPath?.let {
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
 
                 Text(
                     text = "Video uploaded successfully!",
@@ -405,10 +508,15 @@ fun UploadScreen() {
                 )
             }
 
-            // Error message
+            // -----------------------------------------------------
+            // Failure state + Retry
+            // -----------------------------------------------------
+
             uiState.uploadError?.let { error ->
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
 
                 Text(
                     text = "Upload failed: $error",
@@ -416,7 +524,9 @@ fun UploadScreen() {
                     style = MaterialTheme.typography.bodyLarge
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
 
                 Button(
                     onClick = {

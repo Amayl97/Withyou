@@ -21,4 +21,5 @@ data class UploadUiState(
     val uploadError: String? = null,
     val selectedContacts: List<Contact> = emptyList(),
     val uploadProgress: Float = 0f,
+    val contactError: String? = null,
 )
