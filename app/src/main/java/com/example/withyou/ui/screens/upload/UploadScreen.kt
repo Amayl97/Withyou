@@ -415,6 +415,19 @@ fun UploadScreen() {
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyLarge
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.retryUpload(
+                            contentResolver = context.contentResolver
+                        )
+                    },
+                    enabled = !uiState.isUploading
+                ) {
+                    Text("Retry")
+                }
             }
         }
     }

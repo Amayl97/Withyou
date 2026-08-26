@@ -203,6 +203,16 @@ fun validateAndUpload(
         }
     }
 
+//This prevents retry from starting another upload while one is already running.
+    fun retryUpload(contentResolver: ContentResolver) {
+        if (_uiState.value.isUploading) {
+            return
+        }
+
+        uploadVideo(
+            contentResolver = contentResolver
+        )
+    }
     fun onVisibilityChanged(visibility: String) {
         _uiState.value = _uiState.value.copy(
             visibility = visibility,
