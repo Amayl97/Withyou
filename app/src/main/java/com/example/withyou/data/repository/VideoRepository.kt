@@ -22,4 +22,19 @@ class VideoRepository @Inject constructor(
             Result.failure(e)
         }
     }
+//
+    suspend fun getVideos(): Result<List<Video>> {
+        return try {
+            val snapshot = firestore
+                .collection("videos")
+                .get()
+                .await()
+
+            val videos = snapshot.toObjects(Video::class.java)
+
+            Result.success(videos)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
