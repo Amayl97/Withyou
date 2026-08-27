@@ -22,7 +22,7 @@ class VideoRepository @Inject constructor(
             Result.failure(e)
         }
     }
-//
+// for getting videos
     suspend fun getVideos(): Result<List<Video>> {
         return try {
             val snapshot = firestore
