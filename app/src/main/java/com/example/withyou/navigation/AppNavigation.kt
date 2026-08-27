@@ -19,6 +19,7 @@ import com.example.withyou.ui.screens.home.HomeScreen
 import com.example.withyou.ui.screens.login.LoginScreen
 import com.example.withyou.ui.screens.Otp.OtpScreen
 import com.example.withyou.ui.screens.contacts.ContactsScreen
+import com.example.withyou.ui.screens.feed.FeedScreen
 import com.example.withyou.ui.screens.profile.EditProfileScreen
 import com.example.withyou.ui.screens.profile.EditProfileViewModel
 import com.example.withyou.ui.screens.profile.ProfileScreen
@@ -123,8 +124,8 @@ fun AppNavigation() {
                 )
             }
             // Home
-            composable(Screen.Home.route) {
-                HomeScreen()
+            composable("home") {
+                FeedScreen()
             }
 
             // Upload
