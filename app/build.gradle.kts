@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.ui)
     implementation(libs.androidx.benchmark.traceprocessor)
     implementation(libs.androidx.foundation.layout)
+    implementation(libs.androidx.compose.foundation)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
