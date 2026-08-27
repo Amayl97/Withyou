@@ -19,7 +19,6 @@ fun FeedScreen() {
             .fillMaxSize()
             .padding(horizontal = AppSpacing.Medium)
     ) {
-
         // Feed Header
         item {
             Text(
