@@ -2,10 +2,12 @@ package com.example.withyou.ui.screens.upload
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.withyou.data.model.Contact
 import com.example.withyou.data.model.Video
+import com.example.withyou.data.repository.ContactsRepository
 import com.example.withyou.data.repository.UserRepository
 import com.example.withyou.data.repository.VideoRepository
 import com.example.withyou.data.repository.VideoStorageRepository
@@ -26,7 +28,8 @@ class UploadViewModel @Inject constructor(
     private val videoStorageRepository: VideoStorageRepository,
     private val videoRepository: VideoRepository,
     private val auth: FirebaseAuth,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val contactsRepository: ContactsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UploadUiState())
@@ -161,10 +164,19 @@ fun validateAndUpload(
                         videoId = videoId
                     )
                 val allowedContactIds =
-                    if (currentState.visibility == "selected_contacts") {
-                        getAllowedContactIds()
-                    } else {
-                        emptyList()
+                    when (currentState.visibility) {
+
+                        "contacts" -> {
+                            getAllContactIds()
+                        }
+
+                        "selected_contacts" -> {
+                            getAllowedContactIds()
+                        }
+
+                        else -> {
+                            emptyList()
+                        }
                     }
                 // 3. Save video metadata to Firestore
                 val video = Video(
@@ -192,7 +204,12 @@ fun validateAndUpload(
 
             } catch (e: Exception) {
 
-                // 5. Upload failed
+                Log.e(
+                    "UPLOAD_DEBUG",
+                    "UPLOAD FAILED",
+                    e
+                )
+
                 _uiState.value = _uiState.value.copy(
                     isUploading = false,
                     uploadProgress = 0f,
@@ -244,12 +261,25 @@ fun validateAndUpload(
 
         val selectedContacts = _uiState.value.selectedContacts
 
+
+
         return selectedContacts.mapNotNull { contact ->
 
             val user = userRepository.getUserByPhoneNumber(
                 contact.phoneNumber
             )
 
+            user?.uid
+        }
+    }
+    private suspend fun getAllContactIds(): List<String> {
+
+        val contacts = contactsRepository.getContact()
+
+        return contacts.mapNotNull { contact ->
+            val user = userRepository.getUserByPhoneNumber(
+                contact.phoneNumber
+            )
             user?.uid
         }
     }

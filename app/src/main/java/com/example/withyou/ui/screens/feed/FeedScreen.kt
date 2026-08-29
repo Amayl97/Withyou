@@ -3,17 +3,30 @@ package com.example.withyou.ui.screens.feed
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import com.example.withyou.R
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.withyou.ui.theme.AppSpacing
+import com.example.withyou.R
 
 @Composable
-fun FeedScreen() {
+fun FeedScreen(
+    viewModel: FeedViewModel = hiltViewModel()
 
+) {
+
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadVideos()
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -36,34 +49,14 @@ fun FeedScreen() {
             )
         }
 
-        // Video 1
-        item {
+        items(uiState.videos) { video ->
             VideoCard(
                 thumbnail = R.drawable.thumbnail,
-                title = "A Day in My Life",
-                view = "120 views",
-                uploadTime = "2 hours ago"
+                title = video.title,
+                view = "0 views",
+                uploadTime = "Recently"
             )
         }
 
-        // Video 2
-        item {
-            VideoCard(
-                thumbnail = R.drawable.thumbnail,
-                title = "My University Journey",
-                view = "85 views",
-                uploadTime = "5 hours ago"
-            )
-        }
-
-        // Video 3
-        item {
-            VideoCard(
-                thumbnail = R.drawable.thumbnail2,
-                title = "Weekend Vlog",
-                view = "210 views",
-                uploadTime = "Yesterday"
-            )
-        }
     }
 }

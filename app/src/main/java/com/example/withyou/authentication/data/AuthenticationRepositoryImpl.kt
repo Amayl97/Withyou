@@ -94,6 +94,11 @@ class AuthenticationRepositoryImpl @Inject constructor(
     override fun getCurrentUserId(): String? {
         return firebaseAuth.currentUser?.uid
     }
+    override fun getCurrentUserPhoneNumber(): String? {
+        return FirebaseAuth.getInstance()
+            .currentUser
+            ?.phoneNumber
+    }
     override suspend fun getFirebaseIdToken(): String? {
         val user = firebaseAuth.currentUser ?: return null
 

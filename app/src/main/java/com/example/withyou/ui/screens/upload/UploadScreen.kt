@@ -391,9 +391,9 @@ fun UploadScreen() {
                                         it.id == contact.id
                                     },
                                     onCheckedChange = {
-                                        viewModel.onContactSelected(
-                                            contact
-                                        )
+                                        println("CONTACT CLICKED: ${contact.name} - ${contact.phoneNumber}")
+
+                                        viewModel.onContactSelected(contact)
                                     }
                                 )
 
