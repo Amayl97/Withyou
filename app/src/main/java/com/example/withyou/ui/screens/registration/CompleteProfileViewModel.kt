@@ -9,6 +9,7 @@ import com.example.withyou.data.repository.UserRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.State
+import com.example.withyou.data.util.PhoneNumberUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 
 
@@ -35,14 +36,21 @@ class CompleteProfileViewModel @Inject constructor(
         onSuccess: () -> Unit
     ){
        val uid = getCurrentUserId()
+        val phoneNumber =
+            authenticationRepository.getCurrentUserPhoneNumber()
         if (uid == null){
             _errorMessage.value = "User not authenticated"
+            return
+        }
+        if (phoneNumber == null) {
+            _errorMessage.value = "Phone number not available"
             return
         }
         val user = User(
             uid = uid,
             username = username,
             displayName = displayname,
+            phoneNumber = PhoneNumberUtils.normalize(phoneNumber),
             bio = bio
         )
         viewModelScope.launch {
