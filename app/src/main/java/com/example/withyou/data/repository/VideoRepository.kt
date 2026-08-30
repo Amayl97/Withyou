@@ -65,7 +65,9 @@ suspend fun getVideos(): Result<List<Video>> {
                 }
             }
 
-        Result.success(videos)
+        val sortedVideos = videos.sortedByDescending { it.createdAt }
+
+        Result.success(sortedVideos)
 
     } catch (e: Exception) {
         Result.failure(e)
