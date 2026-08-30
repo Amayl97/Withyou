@@ -1,6 +1,7 @@
 package com.example.withyou.ui.screens.player
 
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.withyou.data.repository.VideoRepository
@@ -40,11 +41,12 @@ class VideoPlayerViewModel @Inject constructor(
 
             result
                 .onSuccess { video ->
-
                     val videoUrl =
-                        videoStorageRepository.getVideoUrl(
+                        videoStorageRepository.getSignedVideoUrl(
                             video.videoPath
                         )
+                    Log.d("VideoPlayer", "Video path: ${video.videoPath}")
+                    Log.d("VideoPlayer", "Video URL: $videoUrl")
 
                     _uiState.value = VideoPlayerUiState(
                         isLoading = false,
