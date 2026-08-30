@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.withyou.ui.theme.AppSpacing
 import com.example.withyou.R
+import com.example.withyou.data.util.TimeUtils
 
 @Composable
 fun FeedScreen(
@@ -54,7 +55,7 @@ fun FeedScreen(
                 thumbnail = R.drawable.thumbnail,
                 title = video.title,
                 view = "0 views",
-                uploadTime = "Recently"
+                uploadTime = TimeUtils.getTimeAgo(video.createdAt)
             )
         }
 
