@@ -73,4 +73,25 @@ suspend fun getVideos(): Result<List<Video>> {
         Result.failure(e)
     }
 }
+
+    suspend fun getVideoById(videoId: String): Result<Video> {
+        return try {
+            val snapshot = firestore
+                .collection("videos")
+                .document(videoId)
+                .get()
+                .await()
+
+            val video = snapshot.toObject(Video::class.java)
+                ?: return Result.failure(
+                    IllegalStateException("Video not found")
+                )
+
+            Result.success(video)
+
+        } catch (e: Exception) {
+            Log.e("VideoRepository", "Failed to get video", e)
+            Result.failure(e)
+        }
+    }
 }

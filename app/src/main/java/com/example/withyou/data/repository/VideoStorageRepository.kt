@@ -71,4 +71,10 @@ class VideoStorageRepository @Inject constructor(
 
         return videoPath
     }
+
+    fun getVideoUrl(videoPath: String): String {
+        return supabaseClient.storage
+            .from("videos")
+            .publicUrl(videoPath)
+    }
 }

@@ -22,6 +22,7 @@ import com.example.withyou.ui.theme.AppSpacing
 
 @Composable
 fun FeedScreen(
+    onVideoClick: (String) -> Unit,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -95,7 +96,10 @@ fun FeedScreen(
                         thumbnail = R.drawable.thumbnail,
                         title = video.title,
                         view = "0 views",
-                        uploadTime = getTimeAgo(video.createdAt)
+                        uploadTime = getTimeAgo(video.createdAt),
+                        onClick = {
+                            onVideoClick(video.id)
+                        }
                     )
                 }
             }

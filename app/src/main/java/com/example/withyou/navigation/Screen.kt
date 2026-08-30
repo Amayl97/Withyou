@@ -13,6 +13,10 @@ sealed class Screen(val route: String){
     object Settings : Screen("settings")
     object Upload : Screen("upload")
     data object Otp : Screen("otp")
+    object VideoPlayer : Screen("video_player/{videoId}") {
 
-
+        fun createRoute(videoId: String): String {
+            return "video_player/$videoId"
+        }
+    }
 }

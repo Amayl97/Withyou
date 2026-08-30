@@ -1,6 +1,7 @@
 package com.example.withyou.ui.screens.feed
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,14 +23,15 @@ fun VideoCard(
     thumbnail: Int,
     title: String,
     view: String,
-    uploadTime: String
+    uploadTime: String,
+    onClick: () -> Unit
 ) {
     Spacer(
         modifier = Modifier.height(AppSpacing.Medium)
     )
 
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().clickable { onClick() }
     ) {
 
         Image(

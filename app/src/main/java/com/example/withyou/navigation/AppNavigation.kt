@@ -8,14 +8,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.withyou.ui.screens.player.VideoPlayerScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.withyou.authentication.presentation.AuthViewModel
 import com.example.withyou.ui.components.BottomNavigationBar
-import com.example.withyou.ui.screens.home.HomeScreen
 import com.example.withyou.ui.screens.login.LoginScreen
 import com.example.withyou.ui.screens.Otp.OtpScreen
 import com.example.withyou.ui.screens.contacts.ContactsScreen
@@ -124,8 +123,29 @@ fun AppNavigation() {
                 )
             }
             // Home
-            composable("home") {
-                FeedScreen()
+            composable(Screen.Home.route) {
+                FeedScreen(
+                    onVideoClick = { videoId ->
+                        navController.navigate(
+                            Screen.VideoPlayer.createRoute(videoId)
+                        )
+                    }
+                )
+            }
+//            Video Player
+            composable(
+                route = Screen.VideoPlayer.route
+            ) { backStackEntry ->
+
+                val videoId = backStackEntry.arguments
+                    ?.getString("videoId")
+
+                VideoPlayerScreen(
+                    videoId = videoId ?: "",
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
             }
 
             // Upload
@@ -191,4 +211,6 @@ fun AppNavigation() {
         }
     }
 }
+
+
 
