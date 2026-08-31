@@ -64,6 +64,8 @@ android {
 }
 
 dependencies {
+//GSON
+    implementation("com.google.code.gson:gson:2.13.1")
 //    Supabase
     implementation(platform("io.github.jan-tennert.supabase:bom:3.2.6"))
     implementation("io.github.jan-tennert.supabase:storage-kt")

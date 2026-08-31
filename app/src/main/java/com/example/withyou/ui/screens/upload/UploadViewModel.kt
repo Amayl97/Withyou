@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.withyou.data.model.Contact
 import com.example.withyou.data.model.Video
+import com.example.withyou.data.repository.BackendTestRepository
 import com.example.withyou.data.repository.ContactsRepository
 import com.example.withyou.data.repository.UserRepository
 import com.example.withyou.data.repository.VideoRepository
@@ -29,7 +30,8 @@ class UploadViewModel @Inject constructor(
     private val videoRepository: VideoRepository,
     private val auth: FirebaseAuth,
     private val userRepository: UserRepository,
-    private val contactsRepository: ContactsRepository
+    private val contactsRepository: ContactsRepository,
+    private val backendTestRepository: BackendTestRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UploadUiState())
@@ -281,6 +283,71 @@ fun validateAndUpload(
                 contact.phoneNumber
             )
             user?.uid
+        }
+    }
+
+    fun testBackendAuthentication() {
+        viewModelScope.launch {
+            try {
+                val result =
+                    backendTestRepository.testAuthentication()
+
+                Log.d(
+                    "BACKEND_TEST",
+                    result
+                )
+
+            } catch (e: Exception) {
+                Log.e(
+                    "BACKEND_TEST",
+                    "Backend test failed",
+                    e
+                )
+            }
+        }
+    }
+
+    fun testVideoAccess() {
+        viewModelScope.launch {
+            try {
+                val result = backendTestRepository.testVideoAccess(
+                    "621902cf-48ce-46af-8dad-e270652b570b"
+                )
+
+                Log.d(
+                    "VIDEO_ACCESS_TEST",
+                    result
+                )
+
+            } catch (e: Exception) {
+                Log.e(
+                    "VIDEO_ACCESS_TEST",
+                    "Video access test failed",
+                    e
+                )
+            }
+        }
+    }
+
+    fun testRealVideoAccess() {
+        viewModelScope.launch {
+            try {
+                val result = backendTestRepository.getVideoAccess(
+                    "621902cf-48ce-46af-8dad-e270652b570b"
+                )
+
+                Log.d(
+                    "REAL_VIDEO_ACCESS",
+                    result
+                )
+
+            } catch (e: Exception) {
+                Log.e(
+                    "REAL_VIDEO_ACCESS",
+                    "Real video access test failed",
+                    e
+                )
+            }
         }
     }
 }

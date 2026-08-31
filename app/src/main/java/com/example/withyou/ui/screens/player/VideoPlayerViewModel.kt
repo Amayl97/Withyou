@@ -1,11 +1,10 @@
 package com.example.withyou.ui.screens.player
 
-
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.withyou.data.repository.VideoAccessRepository
 import com.example.withyou.data.repository.VideoRepository
-import com.example.withyou.data.repository.VideoStorageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,19 +12,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-data class VideoPlayerUiState(
-    val isLoading: Boolean = true,
-    val videoUrl: String? = null,
-    val error: String? = null
-)
-
 @HiltViewModel
 class VideoPlayerViewModel @Inject constructor(
     private val videoRepository: VideoRepository,
-    private val videoStorageRepository: VideoStorageRepository
+    private val videoAccessRepository: VideoAccessRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(VideoPlayerUiState())
+
     val uiState: StateFlow<VideoPlayerUiState> =
         _uiState.asStateFlow()
 
@@ -37,29 +31,42 @@ class VideoPlayerViewModel @Inject constructor(
                 isLoading = true
             )
 
-            val result = videoRepository.getVideoById(videoId)
+            val result =
+                videoAccessRepository.getVideoUrl(videoId)
 
             result
-                .onSuccess { video ->
-                    val videoUrl =
-                        videoStorageRepository.getSignedVideoUrl(
-                            video.videoPath
-                        )
-                    Log.d("VideoPlayer", "Video path: ${video.videoPath}")
-                    Log.d("VideoPlayer", "Video URL: $videoUrl")
+                .onSuccess { videoUrl ->
 
-                    _uiState.value = VideoPlayerUiState(
-                        isLoading = false,
-                        videoUrl = videoUrl
+                    Log.d(
+                        "VideoPlayer",
+                        "Authorized video access"
                     )
+
+                    Log.d(
+                        "VideoPlayer",
+                        "Video URL received"
+                    )
+
+                    _uiState.value =
+                        VideoPlayerUiState(
+                            isLoading = false,
+                            videoUrl = videoUrl
+                        )
                 }
                 .onFailure { exception ->
 
-                    _uiState.value = VideoPlayerUiState(
-                        isLoading = false,
-                        error = exception.message
-                            ?: "Failed to load video"
+                    Log.e(
+                        "VideoPlayer",
+                        "Video access denied/failed",
+                        exception
                     )
+
+                    _uiState.value =
+                        VideoPlayerUiState(
+                            isLoading = false,
+                            error = exception.message
+                                ?: "Unable to access video"
+                        )
                 }
         }
     }
