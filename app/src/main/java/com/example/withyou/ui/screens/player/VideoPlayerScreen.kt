@@ -52,6 +52,9 @@ fun VideoPlayerScreen(
     var isFullscreen by remember {
         mutableStateOf(false)
     }
+    var isBuffering by remember {
+        mutableStateOf(false)
+    }
     val uiState by viewModel.uiState.collectAsState()
 
     val context = LocalContext.current
@@ -175,9 +178,19 @@ fun VideoPlayerScreen(
                             addListener(
                                 object : Player.Listener {
 
+                                    override fun onPlaybackStateChanged(
+                                        playbackState: Int
+                                    ) {
+
+                                        isBuffering =
+                                            playbackState == Player.STATE_BUFFERING
+                                    }
+
                                     override fun onPlayerError(
                                         error: androidx.media3.common.PlaybackException
                                     ) {
+
+                                        isBuffering = false
 
                                         Log.e(
                                             "VideoPlayer",
@@ -219,6 +232,13 @@ fun VideoPlayerScreen(
                                 .aspectRatio(16f / 9f)
                         }
                 )
+
+                if (isBuffering) {
+
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
 
                 DisposableEffect(player) {
 
