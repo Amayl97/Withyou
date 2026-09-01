@@ -23,12 +23,12 @@ import dagger.hilt.android.HiltAndroidApp
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
+
         setContent {
-            setContent {
-                WithyouTheme {
-                    AppNavigation()
-                }
+            WithyouTheme {
+                AppNavigation()
             }
         }
     }

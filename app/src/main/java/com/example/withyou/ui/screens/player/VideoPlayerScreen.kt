@@ -1,13 +1,18 @@
 package com.example.withyou.ui.screens.player
 
+import android.app.Activity
 import android.util.Log
 import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Fullscreen
+import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -18,11 +23,16 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -37,13 +47,57 @@ fun VideoPlayerScreen(
     onBack: () -> Unit,
     viewModel: VideoPlayerViewModel = hiltViewModel()
 ) {
+    val view = LocalView.current
 
+    var isFullscreen by remember {
+        mutableStateOf(false)
+    }
     val uiState by viewModel.uiState.collectAsState()
 
     val context = LocalContext.current
 
     LaunchedEffect(videoId) {
         viewModel.loadVideo(videoId)
+    }
+
+    LaunchedEffect(isFullscreen) {
+
+        val window = (view.context as Activity).window
+
+        val controller =
+            WindowInsetsControllerCompat(window, view)
+
+        if (isFullscreen) {
+
+            controller.hide(
+                WindowInsetsCompat.Type.systemBars()
+            )
+
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+        } else {
+
+            controller.show(
+                WindowInsetsCompat.Type.systemBars()
+            )
+        }
+    }
+
+    DisposableEffect(Unit) {
+
+        onDispose {
+
+            val window =
+                (view.context as Activity).window
+
+            WindowInsetsControllerCompat(
+                window,
+                view
+            ).show(
+                WindowInsetsCompat.Type.systemBars()
+            )
+        }
     }
 
     Box(
@@ -156,7 +210,14 @@ fun VideoPlayerScreen(
                                 )
                         }
                     },
-                    modifier = Modifier.fillMaxSize()
+                    modifier =
+                        if (isFullscreen) {
+                            Modifier.fillMaxSize()
+                        } else {
+                            Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(16f / 9f)
+                        }
                 )
 
                 DisposableEffect(player) {
@@ -182,6 +243,32 @@ fun VideoPlayerScreen(
                     Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back"
             )
+        }
+
+        if (uiState.videoUrl != null) {
+
+            IconButton(
+                onClick = {
+                    isFullscreen = !isFullscreen
+                },
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+
+                Icon(
+                    imageVector =
+                        if (isFullscreen) {
+                            Icons.Default.FullscreenExit
+                        } else {
+                            Icons.Default.Fullscreen
+                        },
+                    contentDescription =
+                        if (isFullscreen) {
+                            "Exit fullscreen"
+                        } else {
+                            "Enter fullscreen"
+                        }
+                )
+            }
         }
     }
 }
