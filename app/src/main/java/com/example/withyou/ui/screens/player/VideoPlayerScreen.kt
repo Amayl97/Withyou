@@ -83,6 +83,7 @@ fun VideoPlayerScreen(
     var playbackError by remember {
         mutableStateOf<String?>(null)
     }
+
     var videoWidth by remember {
         mutableStateOf(0)
     }
@@ -383,6 +384,7 @@ fun VideoPlayerScreen(
                                 color = Color.White
                             )
                         }
+
                         if (playbackError != null) {
 
                             Column(
