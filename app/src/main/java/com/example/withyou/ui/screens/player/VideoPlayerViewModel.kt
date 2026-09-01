@@ -3,6 +3,7 @@ package com.example.withyou.ui.screens.player
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.withyou.data.repository.UserRepository
 import com.example.withyou.data.repository.VideoAccessRepository
 import com.example.withyou.data.repository.VideoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,10 +16,12 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class VideoPlayerViewModel @Inject constructor(
     private val videoRepository: VideoRepository,
-    private val videoAccessRepository: VideoAccessRepository
+    private val videoAccessRepository: VideoAccessRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(VideoPlayerUiState())
+    private val _uiState =
+        MutableStateFlow(VideoPlayerUiState())
 
     val uiState: StateFlow<VideoPlayerUiState> =
         _uiState.asStateFlow()
@@ -27,33 +30,84 @@ class VideoPlayerViewModel @Inject constructor(
 
         viewModelScope.launch {
 
-            _uiState.value = VideoPlayerUiState(
-                isLoading = true
-            )
+            _uiState.value =
+                VideoPlayerUiState(
+                    isLoading = true
+                )
 
-            val result =
-                videoAccessRepository.getVideoUrl(videoId)
+            try {
 
-            result
-                .onSuccess { videoUrl ->
+                // -------------------------------------------------
+                // Get video metadata
+                // -------------------------------------------------
 
+                val video =
+                    videoRepository
+                        .getVideoById(videoId)
+                        .getOrThrow()
 
+                // -------------------------------------------------
+                // Get owner profile
+                // -------------------------------------------------
 
-                    _uiState.value =
-                        VideoPlayerUiState(
-                            isLoading = false,
-                            videoUrl = videoUrl
-                        )
-                }
-                .onFailure { exception ->
+                val owner =
+                    userRepository.getUser(
+                        video.ownerId
+                    )
 
-                    _uiState.value =
-                        VideoPlayerUiState(
-                            isLoading = false,
-                            error = exception.message
-                                ?: "Unable to access video"
-                        )
-                }
+                // -------------------------------------------------
+                // Get secure video URL
+                // -------------------------------------------------
+
+                val videoUrl =
+                    videoAccessRepository
+                        .getVideoUrl(videoId)
+                        .getOrThrow()
+
+                Log.d(
+                    "VideoPlayer",
+                    "Video metadata loaded"
+                )
+
+                Log.d(
+                    "VideoPlayer",
+                    "Owner: ${owner?.displayName}"
+                )
+
+                Log.d(
+                    "VideoPlayer",
+                    "Authorized video access"
+                )
+
+                // -------------------------------------------------
+                // Update UI
+                // -------------------------------------------------
+
+                _uiState.value =
+                    VideoPlayerUiState(
+                        isLoading = false,
+                        videoUrl = videoUrl,
+                        videoTitle = video.title,
+                        videoDescription = video.description,
+                        owner = owner
+                    )
+
+            } catch (e: Exception) {
+
+                Log.e(
+                    "VideoPlayer",
+                    "Failed to load video",
+                    e
+                )
+
+                _uiState.value =
+                    VideoPlayerUiState(
+                        isLoading = false,
+                        error = e.message
+                            ?: "Unable to load video"
+                    )
+            }
         }
     }
 }
+
