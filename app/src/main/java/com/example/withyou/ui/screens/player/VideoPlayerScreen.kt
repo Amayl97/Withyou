@@ -1,6 +1,7 @@
 package com.example.withyou.ui.screens.player
 
 import android.app.Activity
+import android.content.pm.ActivityInfo
 import android.util.Log
 import android.view.ViewGroup
 import androidx.annotation.OptIn
@@ -36,6 +37,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
@@ -47,28 +49,52 @@ fun VideoPlayerScreen(
     onBack: () -> Unit,
     viewModel: VideoPlayerViewModel = hiltViewModel()
 ) {
+
+    val context = LocalContext.current
     val view = LocalView.current
+    val activity = context as Activity
+
+    val uiState by viewModel.uiState.collectAsState()
 
     var isFullscreen by remember {
         mutableStateOf(false)
     }
+
     var isBuffering by remember {
         mutableStateOf(false)
     }
-    val uiState by viewModel.uiState.collectAsState()
 
-    val context = LocalContext.current
+    var videoWidth by remember {
+        mutableStateOf(0)
+    }
+
+    var videoHeight by remember {
+        mutableStateOf(0)
+    }
+
+    val originalOrientation = remember {
+        activity.requestedOrientation
+    }
+
+    // -------------------------------------------------
+    // Load video
+    // -------------------------------------------------
 
     LaunchedEffect(videoId) {
         viewModel.loadVideo(videoId)
     }
 
+    // -------------------------------------------------
+    // Fullscreen system bars
+    // -------------------------------------------------
+
     LaunchedEffect(isFullscreen) {
 
-        val window = (view.context as Activity).window
-
         val controller =
-            WindowInsetsControllerCompat(window, view)
+            WindowInsetsControllerCompat(
+                activity.window,
+                view
+            )
 
         if (isFullscreen) {
 
@@ -77,7 +103,8 @@ fun VideoPlayerScreen(
             )
 
             controller.systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                WindowInsetsControllerCompat
+                    .BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
         } else {
 
@@ -87,19 +114,26 @@ fun VideoPlayerScreen(
         }
     }
 
+    // -------------------------------------------------
+    // Cleanup fullscreen state
+    // -------------------------------------------------
+
     DisposableEffect(Unit) {
 
         onDispose {
 
-            val window =
-                (view.context as Activity).window
+            val controller =
+                WindowInsetsControllerCompat(
+                    activity.window,
+                    view
+                )
 
-            WindowInsetsControllerCompat(
-                window,
-                view
-            ).show(
+            controller.show(
                 WindowInsetsCompat.Type.systemBars()
             )
+
+            activity.requestedOrientation =
+                originalOrientation
         }
     }
 
@@ -119,6 +153,7 @@ fun VideoPlayerScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
+
                     CircularProgressIndicator()
                 }
             }
@@ -135,7 +170,8 @@ fun VideoPlayerScreen(
                 ) {
 
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment =
+                            Alignment.CenterHorizontally
                     ) {
 
                         Text(
@@ -146,6 +182,7 @@ fun VideoPlayerScreen(
                         Button(
                             onClick = onBack
                         ) {
+
                             Text("Go Back")
                         }
                     }
@@ -158,53 +195,76 @@ fun VideoPlayerScreen(
 
             uiState.videoUrl != null -> {
 
-                val player = remember(uiState.videoUrl) {
+                val player =
+                    remember(uiState.videoUrl) {
 
-                    ExoPlayer.Builder(context)
-                        .build()
-                        .apply {
+                        ExoPlayer.Builder(context)
+                            .build()
+                            .apply {
 
-                            val mediaItem =
-                                MediaItem.fromUri(
-                                    uiState.videoUrl!!
+                                val mediaItem =
+                                    MediaItem.fromUri(
+                                        uiState.videoUrl!!
+                                    )
+
+                                setMediaItem(mediaItem)
+
+                                prepare()
+
+                                playWhenReady = true
+
+                                addListener(
+                                    object : Player.Listener {
+
+                                        override fun
+                                                onVideoSizeChanged(
+                                            videoSize: VideoSize
+                                        ) {
+
+                                            videoWidth =
+                                                videoSize.width
+
+                                            videoHeight =
+                                                videoSize.height
+                                        }
+
+                                        override fun
+                                                onPlaybackStateChanged(
+                                            playbackState: Int
+                                        ) {
+
+                                            isBuffering =
+                                                playbackState ==
+                                                        Player.STATE_BUFFERING
+                                        }
+
+                                        override fun
+                                                onPlayerError(
+                                            error:
+                                            androidx.media3.common
+                                            .PlaybackException
+                                        ) {
+
+                                            isBuffering = false
+
+                                            Log.e(
+                                                "VideoPlayer",
+                                                "Playback error: ${error.errorCodeName}",
+                                                error
+                                            )
+                                        }
+                                    }
                                 )
+                            }
+                    }
 
-                            setMediaItem(mediaItem)
-
-                            prepare()
-
-                            playWhenReady = true
-
-                            addListener(
-                                object : Player.Listener {
-
-                                    override fun onPlaybackStateChanged(
-                                        playbackState: Int
-                                    ) {
-
-                                        isBuffering =
-                                            playbackState == Player.STATE_BUFFERING
-                                    }
-
-                                    override fun onPlayerError(
-                                        error: androidx.media3.common.PlaybackException
-                                    ) {
-
-                                        isBuffering = false
-
-                                        Log.e(
-                                            "VideoPlayer",
-                                            "Playback error: ${error.errorCodeName}",
-                                            error
-                                        )
-                                    }
-                                }
-                            )
-                        }
-                }
+                // -------------------------------------------------
+                // Video player
+                // -------------------------------------------------
 
                 AndroidView(
                     factory = {
+
                         PlayerView(it).apply {
 
                             this.player = player
@@ -223,22 +283,47 @@ fun VideoPlayerScreen(
                                 )
                         }
                     },
+
                     modifier =
                         if (isFullscreen) {
+
                             Modifier.fillMaxSize()
+
                         } else {
+
                             Modifier
                                 .fillMaxWidth()
-                                .aspectRatio(16f / 9f)
+                                .aspectRatio(
+                                    if (
+                                        videoWidth > 0 &&
+                                        videoHeight > 0
+                                    ) {
+                                        videoWidth.toFloat() /
+                                                videoHeight.toFloat()
+                                    } else {
+                                        16f / 9f
+                                    }
+                                )
                         }
                 )
+
+                // -------------------------------------------------
+                // Buffering indicator
+                // -------------------------------------------------
 
                 if (isBuffering) {
 
                     CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier =
+                            Modifier.align(
+                                Alignment.Center
+                            )
                     )
                 }
+
+                // -------------------------------------------------
+                // Release player
+                // -------------------------------------------------
 
                 DisposableEffect(player) {
 
@@ -255,7 +340,10 @@ fun VideoPlayerScreen(
 
         IconButton(
             onClick = onBack,
-            modifier = Modifier.align(Alignment.TopStart)
+            modifier =
+                Modifier.align(
+                    Alignment.TopStart
+                )
         ) {
 
             Icon(
@@ -265,13 +353,47 @@ fun VideoPlayerScreen(
             )
         }
 
+        // -------------------------------------------------
+        // Fullscreen button
+        // -------------------------------------------------
+
         if (uiState.videoUrl != null) {
 
             IconButton(
                 onClick = {
-                    isFullscreen = !isFullscreen
+
+                    if (!isFullscreen) {
+
+                        // Landscape video
+                        if (videoWidth > videoHeight) {
+
+                            activity.requestedOrientation =
+                                ActivityInfo
+                                    .SCREEN_ORIENTATION_LANDSCAPE
+
+                            // Portrait video
+                        } else if (videoHeight > videoWidth) {
+
+                            activity.requestedOrientation =
+                                ActivityInfo
+                                    .SCREEN_ORIENTATION_PORTRAIT
+                        }
+
+                        isFullscreen = true
+
+                    } else {
+
+                        isFullscreen = false
+
+                        activity.requestedOrientation =
+                            originalOrientation
+                    }
                 },
-                modifier = Modifier.align(Alignment.TopEnd)
+
+                modifier =
+                    Modifier.align(
+                        Alignment.TopEnd
+                    )
             ) {
 
                 Icon(
@@ -281,6 +403,7 @@ fun VideoPlayerScreen(
                         } else {
                             Icons.Default.Fullscreen
                         },
+
                     contentDescription =
                         if (isFullscreen) {
                             "Exit fullscreen"
@@ -292,3 +415,4 @@ fun VideoPlayerScreen(
         }
     }
 }
+
