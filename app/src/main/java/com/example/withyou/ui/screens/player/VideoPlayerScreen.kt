@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -378,10 +379,8 @@ fun VideoPlayerScreen(
                         if (isBuffering) {
 
                             CircularProgressIndicator(
-                                modifier =
-                                    Modifier.align(
-                                        Alignment.Center
-                                    )
+                                modifier = Modifier.align(Alignment.Center),
+                                color = Color.White
                             )
                         }
                         if (playbackError != null) {
@@ -467,13 +466,13 @@ fun VideoPlayerScreen(
                                     } else {
                                         Icons.Default.Fullscreen
                                     },
-
                                 contentDescription =
                                     if (isFullscreen) {
                                         "Exit fullscreen"
                                     } else {
                                         "Enter fullscreen"
-                                    }
+                                    },
+                                tint = Color.White
                             )
                         }
                     }
@@ -636,7 +635,8 @@ fun VideoPlayerScreen(
                     Icon(
                         imageVector =
                             Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
+                        contentDescription = "Back",
+                                tint = Color.White
                     )
                 }
 
