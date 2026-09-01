@@ -79,6 +79,9 @@ fun VideoPlayerScreen(
         mutableStateOf(false)
     }
 
+    var playbackError by remember {
+        mutableStateOf<String?>(null)
+    }
     var videoWidth by remember {
         mutableStateOf(0)
     }
@@ -252,14 +255,14 @@ fun VideoPlayerScreen(
                                             )
                                         }
 
-                                        override fun
-                                                onPlayerError(
-                                            error:
-                                            androidx.media3.common
-                                            .PlaybackException
+                                        override fun onPlayerError(
+                                            error: androidx.media3.common.PlaybackException
                                         ) {
 
                                             isBuffering = false
+
+                                            playbackError =
+                                                "Unable to play this video. Please try again."
 
                                             Log.e(
                                                 "VideoPlayer",
@@ -359,7 +362,39 @@ fun VideoPlayerScreen(
                                     )
                             )
                         }
+                        if (playbackError != null) {
 
+                            Column(
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+
+                                Text(
+                                    text = playbackError
+                                        ?: "Unable to play video",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.height(12.dp)
+                                )
+
+                                Button(
+                                    onClick = {
+                                        playbackError = null
+                                        isBuffering = true
+
+                                        player.seekTo(0)
+                                        player.prepare()
+                                        player.playWhenReady = true
+                                    }
+                                ) {
+                                    Text("Retry")
+                                }
+                            }
+                        }
                         // -------------------------------------------------
                         // Fullscreen button
                         // -------------------------------------------------
