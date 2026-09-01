@@ -37,15 +37,7 @@ class VideoPlayerViewModel @Inject constructor(
             result
                 .onSuccess { videoUrl ->
 
-                    Log.d(
-                        "VideoPlayer",
-                        "Authorized video access"
-                    )
 
-                    Log.d(
-                        "VideoPlayer",
-                        "Video URL received"
-                    )
 
                     _uiState.value =
                         VideoPlayerUiState(
@@ -54,12 +46,6 @@ class VideoPlayerViewModel @Inject constructor(
                         )
                 }
                 .onFailure { exception ->
-
-                    Log.e(
-                        "VideoPlayer",
-                        "Video access denied/failed",
-                        exception
-                    )
 
                     _uiState.value =
                         VideoPlayerUiState(

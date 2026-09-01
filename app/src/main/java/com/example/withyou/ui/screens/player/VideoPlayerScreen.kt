@@ -146,6 +146,9 @@ fun VideoPlayerScreen(
                             controllerAutoShow = true
                             controllerHideOnTouch = true
 
+                            setShowFastForwardButton(true)
+                            setShowRewindButton(true)
+
                             layoutParams =
                                 ViewGroup.LayoutParams(
                                     ViewGroup.LayoutParams.MATCH_PARENT,
