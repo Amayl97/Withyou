@@ -242,17 +242,39 @@ fun VideoPlayerScreen(
                                             videoHeight =
                                                 videoSize.height
                                         }
-
                                         override fun onPlaybackStateChanged(
                                             playbackState: Int
                                         ) {
-                                            isBuffering =
-                                                playbackState == Player.STATE_BUFFERING
+                                            when (playbackState) {
 
-                                            Log.d(
-                                                "VideoPlayer",
-                                                "Playback state: $playbackState"
-                                            )
+                                                Player.STATE_BUFFERING -> {
+                                                    isBuffering = true
+
+                                                    Log.d(
+                                                        "VideoPlayer",
+                                                        "Video is buffering"
+                                                    )
+                                                }
+
+                                                Player.STATE_READY -> {
+                                                    isBuffering = false
+                                                    playbackError = null
+
+                                                    Log.d(
+                                                        "VideoPlayer",
+                                                        "Video is ready"
+                                                    )
+                                                }
+
+                                                Player.STATE_ENDED -> {
+                                                    isBuffering = false
+
+                                                    Log.d(
+                                                        "VideoPlayer",
+                                                        "Video playback ended"
+                                                    )
+                                                }
+                                            }
                                         }
 
                                         override fun onPlayerError(
