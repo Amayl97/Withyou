@@ -627,21 +627,30 @@ fun VideoPlayerScreen(
                 // -------------------------------------------------
 
                 IconButton(
-                    onClick = onBack,
-                    modifier =
-                        Modifier.align(
-                            Alignment.TopStart
-                        )
+                    onClick = {
+
+                        if (isFullscreen) {
+
+                            isFullscreen = false
+
+                            activity.requestedOrientation =
+                                originalOrientation
+
+                        } else {
+
+                            onBack()
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.TopStart)
                 ) {
 
                     Icon(
                         imageVector =
                             Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                                tint = Color.White
+                        tint = Color.White
                     )
                 }
-
                 // -------------------------------------------------
                 // Release player
                 // -------------------------------------------------
