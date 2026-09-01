@@ -1,10 +1,16 @@
 package com.example.withyou.ui.screens.player
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -38,8 +44,7 @@ fun VideoPlayerScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize()
     ) {
 
         when {
@@ -50,28 +55,39 @@ fun VideoPlayerScreen(
 
             uiState.isLoading -> {
 
-                CircularProgressIndicator()
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
 
             // -------------------------------------------------
-            // Error / unauthorized
+            // Error / Access denied
             // -------------------------------------------------
 
             uiState.error != null -> {
 
-                androidx.compose.foundation.layout.Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
 
-                    Text(
-                        text = uiState.error
-                            ?: "Unable to access video"
-                    )
-
-                    Button(
-                        onClick = onBack
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Go Back")
+
+                        Text(
+                            text = uiState.error
+                                ?: "Unable to access video"
+                        )
+
+                        Button(
+                            onClick = onBack
+                        ) {
+                            Text("Go Back")
+                        }
                     }
                 }
             }
@@ -82,9 +98,7 @@ fun VideoPlayerScreen(
 
             uiState.videoUrl != null -> {
 
-                val player = remember(
-                    uiState.videoUrl
-                ) {
+                val player = remember(uiState.videoUrl) {
 
                     ExoPlayer.Builder(context)
                         .build()
@@ -108,7 +122,7 @@ fun VideoPlayerScreen(
                                         error: androidx.media3.common.PlaybackException
                                     ) {
 
-                                        android.util.Log.e(
+                                        Log.e(
                                             "VideoPlayer",
                                             "Playback error: ${error.errorCodeName}",
                                             error
@@ -142,6 +156,22 @@ fun VideoPlayerScreen(
                     }
                 }
             }
+        }
+
+        // -------------------------------------------------
+        // Back button
+        // -------------------------------------------------
+
+        IconButton(
+            onClick = onBack,
+            modifier = Modifier.align(Alignment.TopStart)
+        ) {
+
+            Icon(
+                imageVector =
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back"
+            )
         }
     }
 }
