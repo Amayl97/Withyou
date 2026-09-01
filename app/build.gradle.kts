@@ -64,6 +64,8 @@ android {
 }
 
 dependencies {
+//GSON
+    implementation("com.google.code.gson:gson:2.13.1")
 //    Supabase
     implementation(platform("io.github.jan-tennert.supabase:bom:3.2.6"))
     implementation("io.github.jan-tennert.supabase:storage-kt")
@@ -87,6 +89,7 @@ dependencies {
     implementation(libs.androidx.benchmark.traceprocessor)
     implementation(libs.androidx.foundation.layout)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.runtime)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

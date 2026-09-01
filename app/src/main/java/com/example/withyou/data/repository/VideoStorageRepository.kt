@@ -7,6 +7,7 @@ import io.github.jan.supabase.storage.storage
 import java.io.ByteArrayOutputStream
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
 class VideoStorageRepository @Inject constructor(
     private val supabaseClient: SupabaseClient
@@ -70,5 +71,14 @@ class VideoStorageRepository @Inject constructor(
             )
 
         return videoPath
+    }
+
+    suspend fun getSignedVideoUrl(videoPath: String): String {
+        return supabaseClient.storage
+            .from("videos")
+            .createSignedUrl(
+                path = videoPath,
+                expiresIn = 30.minutes
+            )
     }
 }

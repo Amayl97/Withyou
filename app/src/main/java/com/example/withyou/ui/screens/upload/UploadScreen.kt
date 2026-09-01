@@ -51,6 +51,9 @@ fun UploadScreen() {
     val contactsUiState by contactsViewModel.uiState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.testRealVideoAccess()
+    }
 
     // Contacts permission launcher
     val contactsPermissionLauncher =
