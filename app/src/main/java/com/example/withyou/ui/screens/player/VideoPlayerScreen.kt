@@ -240,14 +240,16 @@ fun VideoPlayerScreen(
                                                 videoSize.height
                                         }
 
-                                        override fun
-                                                onPlaybackStateChanged(
+                                        override fun onPlaybackStateChanged(
                                             playbackState: Int
                                         ) {
-
                                             isBuffering =
-                                                playbackState ==
-                                                        Player.STATE_BUFFERING
+                                                playbackState == Player.STATE_BUFFERING
+
+                                            Log.d(
+                                                "VideoPlayer",
+                                                "Playback state: $playbackState"
+                                            )
                                         }
 
                                         override fun
