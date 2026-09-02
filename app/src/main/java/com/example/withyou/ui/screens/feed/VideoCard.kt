@@ -16,14 +16,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.withyou.R
+import com.example.withyou.data.model.Video
 import com.example.withyou.ui.theme.AppSpacing
 
 @Composable
 fun VideoCard(
-    thumbnail: Int,
-    title: String,
-    view: String,
-    uploadTime: String,
+    video: Video,
     onClick: () -> Unit
 ) {
     Spacer(
@@ -31,11 +30,15 @@ fun VideoCard(
     )
 
     Column(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() }
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
     ) {
 
         Image(
-            painter = painterResource(thumbnail),
+            painter = painterResource(
+                id = R.drawable.thumbnail
+            ),
             contentDescription = "Video thumbnail",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -49,7 +52,7 @@ fun VideoCard(
         )
 
         Text(
-            text = title,
+            text = video.title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold
         )
@@ -63,12 +66,12 @@ fun VideoCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = view,
+                text = "0 views",
                 style = MaterialTheme.typography.bodySmall
             )
 
             Text(
-                text = uploadTime,
+                text = "Recently",
                 style = MaterialTheme.typography.bodySmall
             )
         }

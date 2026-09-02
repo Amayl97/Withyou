@@ -173,6 +173,17 @@ fun validateAndUpload(
                         userId = ownerId,
                         videoId = videoId
                     )
+                // 3. Upload custom thumbnail if selected
+                val uploadedThumbnailPath =
+                    currentState.selectedThumbnailUri?.let { thumbnailUri ->
+
+                        videoStorageRepository.uploadThumbnail(
+                            contentResolver = contentResolver,
+                            thumbnailUri = thumbnailUri,
+                            userId = ownerId,
+                            videoId = videoId
+                        )
+                    }
                 val allowedContactIds =
                     when (currentState.visibility) {
 
@@ -195,7 +206,7 @@ fun validateAndUpload(
                     title = currentState.title.trim(),
                     description = currentState.description.trim(),
                     videoPath = uploadedVideoPath,
-                    thumbnailPath = null,
+                    thumbnailPath = uploadedThumbnailPath,
                     visibility = currentState.visibility,
                     allowedContactIds = allowedContactIds,
                     createdAt = System.currentTimeMillis(),

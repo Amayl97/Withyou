@@ -93,10 +93,7 @@ fun FeedScreen(
 
                 items(uiState.videos) { video ->
                     VideoCard(
-                        thumbnail = R.drawable.thumbnail,
-                        title = video.title,
-                        view = "0 views",
-                        uploadTime = getTimeAgo(video.createdAt),
+                        video = video,
                         onClick = {
                             onVideoClick(video.id)
                         }

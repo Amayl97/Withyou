@@ -24,6 +24,13 @@ class VideoStorageRepository @Inject constructor(
         return "$userId/$videoId.mp4"
     }
 
+    fun createThumbnailPath(
+        userId: String,
+        videoId: String
+    ): String {
+        return "$userId/${videoId}_thumbnail.jpg"
+    }
+
     suspend fun uploadVideo(
         contentResolver: ContentResolver,
         videoUri: Uri,
@@ -71,6 +78,55 @@ class VideoStorageRepository @Inject constructor(
             )
 
         return videoPath
+    }
+
+    suspend fun uploadThumbnail(
+        contentResolver: ContentResolver,
+        thumbnailUri: Uri,
+        userId: String,
+        videoId: String
+    ): String {
+
+        val thumbnailPath = createThumbnailPath(
+            userId = userId,
+            videoId = videoId
+        )
+
+        val thumbnailBytes = contentResolver
+            .openInputStream(thumbnailUri)
+            ?.use { inputStream ->
+
+                val outputStream = ByteArrayOutputStream()
+
+                val buffer = ByteArray(8 * 1024)
+
+                var bytesRead: Int
+
+                while (inputStream.read(buffer).also {
+                        bytesRead = it
+                    } != -1
+                ) {
+                    outputStream.write(
+                        buffer,
+                        0,
+                        bytesRead
+                    )
+                }
+
+                outputStream.toByteArray()
+            }
+            ?: throw IllegalStateException(
+                "Unable to read selected thumbnail"
+            )
+
+        supabaseClient.storage
+            .from("videos")
+            .upload(
+                path = thumbnailPath,
+                data = thumbnailBytes
+            )
+
+        return thumbnailPath
     }
 
     suspend fun getSignedVideoUrl(videoPath: String): String {
