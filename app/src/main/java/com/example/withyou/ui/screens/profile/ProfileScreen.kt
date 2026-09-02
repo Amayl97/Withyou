@@ -56,6 +56,7 @@ fun ProfileScreen(
     onLogout: () -> Unit,
     onEditProfile: () -> Unit,
     onContacts: () -> Unit,
+    onVideoClick: (String) -> Unit,
     viewModel: ProfileViewModel
 ) {
     LaunchedEffect(Unit) {
@@ -111,7 +112,6 @@ fun ProfileScreen(
                     )
 
                 } else {
-
 
                     AsyncImage(
                         model = user?.profileImagePath,
@@ -203,7 +203,7 @@ fun ProfileScreen(
                     VideoCard(
                         video = video,
                         onClick = {
-                            // Navigation will be added next
+                            onVideoClick(video.id)
                         }
                     )
                 }
