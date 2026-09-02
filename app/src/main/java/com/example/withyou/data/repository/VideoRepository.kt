@@ -74,6 +74,35 @@ suspend fun getVideos(): Result<List<Video>> {
     }
 }
 
+    suspend fun getUserVideos(
+        userId: String
+    ): Result<List<Video>> {
+        return try {
+
+            val snapshot = firestore
+                .collection("videos")
+                .whereEqualTo("ownerId", userId)
+                .get()
+                .await()
+
+            val videos = snapshot
+                .toObjects(Video::class.java)
+                .sortedByDescending { it.createdAt }
+
+            Result.success(videos)
+
+        } catch (e: Exception) {
+
+            Log.e(
+                "VideoRepository",
+                "Failed to get user videos",
+                e
+            )
+
+            Result.failure(e)
+        }
+    }
+
     suspend fun getVideoById(videoId: String): Result<Video> {
         return try {
             val snapshot = firestore

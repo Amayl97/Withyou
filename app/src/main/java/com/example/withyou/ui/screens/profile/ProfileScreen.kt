@@ -2,10 +2,11 @@ package com.example.withyou.ui.screens.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import com.example.withyou.data.model.Video
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import coil3.compose.AsyncImage
 
 
+
 @Composable
 fun ProfileScreen(
     onLogout: () -> Unit,
@@ -60,6 +62,7 @@ fun ProfileScreen(
     val user = viewModel.user.value
     val isLoading = viewModel.isLoading.value
     val errorMessage = viewModel.errorMessage.value
+    val videos = viewModel.videos.value
     if (isLoading) {
         LoadingState()
         return
@@ -186,19 +189,23 @@ fun ProfileScreen(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            VideoCard(
-                thumbnail = R.drawable.thumbnail,
-                title = "A day in my life",
-                view = "20 views",
-                uploadTime = "2 days ago",
-            )
 
-            VideoCard(
-                thumbnail = R.drawable.thumbnail2,
-                title = "Living my dream day",
-                view = "24 views",
-                uploadTime = "24 hours",
-            )
+            if (videos.isEmpty()) {
+
+                EmptyVideosState()
+
+            } else {
+
+                videos.forEach { video ->
+
+                    VideoCard(
+                        video = video,
+                        onClick = {
+                            // Navigation will be added next
+                        }
+                    )
+                }
+            }
 
 //            Just for testing
 //            LoadingState()
@@ -253,25 +260,29 @@ fun ProfileScreen(
 
     }
 }
+
+
+
 @Composable
 fun VideoCard(
-    thumbnail: Int,
-    title: String,
-    view: String,
-    uploadTime: String
-){
+    video: Video,
+    onClick: () -> Unit
+) {
     Spacer(
         modifier = Modifier.height(AppSpacing.Medium)
     )
 
-    // Video Card
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                onClick()
+            }
     ) {
 
+        // Temporary thumbnail placeholder
         Image(
-            painter = painterResource(thumbnail),
+            painter = painterResource(R.drawable.thumbnail),
             contentDescription = "Video thumbnail",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -285,7 +296,7 @@ fun VideoCard(
         )
 
         Text(
-            text = title,
+            text = video.title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold
         )
@@ -294,26 +305,15 @@ fun VideoCard(
             modifier = Modifier.height(AppSpacing.ExtraSmall)
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = view,
-                style = MaterialTheme.typography.bodySmall
-            )
-
-            Text(
-                text = uploadTime,
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
+        Text(
+            text = "Uploaded video",
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 
     Spacer(
         modifier = Modifier.height(AppSpacing.Large)
     )
-
 }
 
 @Composable
