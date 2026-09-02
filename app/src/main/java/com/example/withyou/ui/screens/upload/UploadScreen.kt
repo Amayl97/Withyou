@@ -95,12 +95,19 @@ fun UploadScreen() {
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
         ) { uri ->
-
             if (uri != null) {
                 viewModel.onVideoSelected(uri)
             }
         }
 
+    val thumbnailPickerLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri ->
+            if (uri != null) {
+                viewModel.onThumbnailSelected(uri)
+            }
+        }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -110,7 +117,7 @@ fun UploadScreen() {
     ) {
 
         // ---------------------------------------------------------
-        // Upload image
+        // Upload video
         // ---------------------------------------------------------
 
         if (uiState.selectedVideoUri == null) {
@@ -183,6 +190,45 @@ fun UploadScreen() {
                     .fillMaxWidth()
                     .height(220.dp)
                     .clip(MaterialTheme.shapes.large)
+            )
+        }
+        // ---------------------------------------------------------
+// Custom Thumbnail
+// ---------------------------------------------------------
+
+        uiState.selectedVideoUri?.let {
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Primary,
+                    contentColor = WhiteBackground
+                ),
+                shape = MaterialTheme.shapes.medium,
+                onClick = {
+                    thumbnailPickerLauncher.launch("image/*")
+                }
+            ) {
+                Text("Choose Thumbnail")
+            }
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            Text(
+                text = if (uiState.selectedThumbnailUri != null) {
+                    "Custom thumbnail selected"
+                } else {
+                    "No custom thumbnail selected. Video thumbnail will be used."
+                },
+                style = MaterialTheme.typography.bodySmall
             )
         }
 

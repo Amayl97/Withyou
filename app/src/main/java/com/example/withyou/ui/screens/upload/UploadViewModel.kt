@@ -68,6 +68,14 @@ class UploadViewModel @Inject constructor(
             )
         }
     }
+
+
+    fun onThumbnailSelected(uri: Uri) {
+
+        _uiState.value = _uiState.value.copy(
+            selectedThumbnailUri = uri
+        )
+    }
 //to set title
 fun onTitleChanged(title: String) {
     _uiState.value = _uiState.value.copy(
