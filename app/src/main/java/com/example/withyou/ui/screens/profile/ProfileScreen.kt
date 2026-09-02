@@ -1,5 +1,11 @@
 package com.example.withyou.ui.screens.profile
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,20 +25,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -45,6 +46,7 @@ import com.example.withyou.ui.theme.Border
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import coil3.compose.AsyncImage
 
 
@@ -295,11 +297,70 @@ fun VideoCard(
             modifier = Modifier.height(AppSpacing.Small)
         )
 
-        Text(
-            text = video.title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
+        var menuExpanded by remember {
+            mutableStateOf(false)
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Text(
+                text = video.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f)
+            )
+
+            Box {
+
+                IconButton(
+                    onClick = {
+                        menuExpanded = true
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Video options"
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = {
+                        menuExpanded = false
+                    }
+                ) {
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Edit")
+                        },
+                        onClick = {
+                            menuExpanded = false
+
+                            // Edit functionality later
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = "Delete",
+                                color = Color.Red
+                            )
+
+                        },
+                        onClick = {
+                            menuExpanded = false
+
+                            // Delete functionality later
+                        }
+                    )
+                }
+            }
+        }
 
         Spacer(
             modifier = Modifier.height(AppSpacing.ExtraSmall)
