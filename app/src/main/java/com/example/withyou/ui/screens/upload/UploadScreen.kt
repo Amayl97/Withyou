@@ -40,6 +40,8 @@ import com.example.withyou.R
 import com.example.withyou.ui.screens.contacts.ContactsViewModel
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
 
 @Composable
 fun UploadScreen() {
@@ -183,14 +185,29 @@ fun UploadScreen() {
                 modifier = Modifier.height(24.dp)
             )
 
-            VideoPlayer(
-                videoUri = videoUri,
-                thumbnail = uiState.thumbnail,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(220.dp)
-                    .clip(MaterialTheme.shapes.large)
-            )
+            if (uiState.selectedThumbnailUri != null) {
+
+                AsyncImage(
+                    model = uiState.selectedThumbnailUri,
+                    contentDescription = "Custom video thumbnail",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .clip(MaterialTheme.shapes.large),
+                    contentScale = ContentScale.Crop
+                )
+
+            } else {
+
+                VideoPlayer(
+                    videoUri = videoUri,
+                    thumbnail = uiState.thumbnail,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .clip(MaterialTheme.shapes.large)
+                )
+            }
         }
         // ---------------------------------------------------------
 // Custom Thumbnail
