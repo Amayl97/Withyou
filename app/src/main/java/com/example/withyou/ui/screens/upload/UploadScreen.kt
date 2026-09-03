@@ -40,6 +40,8 @@ import com.example.withyou.R
 import com.example.withyou.ui.screens.contacts.ContactsViewModel
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
 
 @Composable
 fun UploadScreen() {
@@ -95,12 +97,19 @@ fun UploadScreen() {
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
         ) { uri ->
-
             if (uri != null) {
                 viewModel.onVideoSelected(uri)
             }
         }
 
+    val thumbnailPickerLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri ->
+            if (uri != null) {
+                viewModel.onThumbnailSelected(uri)
+            }
+        }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -110,7 +119,7 @@ fun UploadScreen() {
     ) {
 
         // ---------------------------------------------------------
-        // Upload image
+        // Upload video
         // ---------------------------------------------------------
 
         if (uiState.selectedVideoUri == null) {
@@ -176,13 +185,67 @@ fun UploadScreen() {
                 modifier = Modifier.height(24.dp)
             )
 
-            VideoPlayer(
-                videoUri = videoUri,
-                thumbnail = uiState.thumbnail,
+            if (uiState.selectedThumbnailUri != null) {
+
+                AsyncImage(
+                    model = uiState.selectedThumbnailUri,
+                    contentDescription = "Custom video thumbnail",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .clip(MaterialTheme.shapes.large),
+                    contentScale = ContentScale.Crop
+                )
+
+            } else {
+
+                VideoPlayer(
+                    videoUri = videoUri,
+                    thumbnail = uiState.thumbnail,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .clip(MaterialTheme.shapes.large)
+                )
+            }
+        }
+        // ---------------------------------------------------------
+// Custom Thumbnail
+// ---------------------------------------------------------
+
+        uiState.selectedVideoUri?.let {
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            Button(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(220.dp)
-                    .clip(MaterialTheme.shapes.large)
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Primary,
+                    contentColor = WhiteBackground
+                ),
+                shape = MaterialTheme.shapes.medium,
+                onClick = {
+                    thumbnailPickerLauncher.launch("image/*")
+                }
+            ) {
+                Text("Choose Thumbnail")
+            }
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            Text(
+                text = if (uiState.selectedThumbnailUri != null) {
+                    "Custom thumbnail selected"
+                } else {
+                    "No custom thumbnail selected. Video thumbnail will be used."
+                },
+                style = MaterialTheme.typography.bodySmall
             )
         }
 

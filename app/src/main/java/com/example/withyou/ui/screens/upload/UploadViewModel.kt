@@ -68,6 +68,14 @@ class UploadViewModel @Inject constructor(
             )
         }
     }
+
+
+    fun onThumbnailSelected(uri: Uri) {
+
+        _uiState.value = _uiState.value.copy(
+            selectedThumbnailUri = uri
+        )
+    }
 //to set title
 fun onTitleChanged(title: String) {
     _uiState.value = _uiState.value.copy(
@@ -165,6 +173,36 @@ fun validateAndUpload(
                         userId = ownerId,
                         videoId = videoId
                     )
+
+                // 3. Upload thumbnail
+                val uploadedThumbnailPath =
+                    if (currentState.selectedThumbnailUri != null) {
+
+                        // Custom thumbnail selected
+                        videoStorageRepository.uploadThumbnail(
+                            contentResolver = contentResolver,
+                            thumbnailUri = currentState.selectedThumbnailUri,
+                            userId = ownerId,
+                            videoId = videoId
+                        )
+
+                    } else {
+
+                        // No custom thumbnail → use extracted thumbnail
+                        currentState.thumbnail?.let { bitmap ->
+
+                            videoStorageRepository.uploadThumbnailBitmap(
+                                bitmap = bitmap,
+                                userId = ownerId,
+                                videoId = videoId
+                            )
+                        }
+                    }
+
+                Log.d(
+                    "THUMBNAIL_DEBUG",
+                    "Final thumbnail path: $uploadedThumbnailPath"
+                )
                 val allowedContactIds =
                     when (currentState.visibility) {
 
@@ -187,7 +225,7 @@ fun validateAndUpload(
                     title = currentState.title.trim(),
                     description = currentState.description.trim(),
                     videoPath = uploadedVideoPath,
-                    thumbnailPath = null,
+                    thumbnailPath = uploadedThumbnailPath,
                     visibility = currentState.visibility,
                     allowedContactIds = allowedContactIds,
                     createdAt = System.currentTimeMillis(),
@@ -222,6 +260,8 @@ fun validateAndUpload(
             }
         }
     }
+
+
 
 //This prevents retry from starting another upload while one is already running.
     fun retryUpload(contentResolver: ContentResolver) {

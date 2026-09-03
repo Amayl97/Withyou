@@ -1,11 +1,18 @@
 package com.example.withyou.ui.screens.profile
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import com.example.withyou.data.model.Video
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,20 +25,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -44,7 +46,9 @@ import com.example.withyou.ui.theme.Border
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import coil3.compose.AsyncImage
+import com.example.withyou.ui.screens.feed.VideoCard
 
 
 @Composable
@@ -52,6 +56,7 @@ fun ProfileScreen(
     onLogout: () -> Unit,
     onEditProfile: () -> Unit,
     onContacts: () -> Unit,
+    onVideoClick: (String) -> Unit,
     viewModel: ProfileViewModel
 ) {
     LaunchedEffect(Unit) {
@@ -60,6 +65,7 @@ fun ProfileScreen(
     val user = viewModel.user.value
     val isLoading = viewModel.isLoading.value
     val errorMessage = viewModel.errorMessage.value
+    val videos = viewModel.videos.value
     if (isLoading) {
         LoadingState()
         return
@@ -106,7 +112,6 @@ fun ProfileScreen(
                     )
 
                 } else {
-
 
                     AsyncImage(
                         model = user?.profileImagePath,
@@ -186,19 +191,24 @@ fun ProfileScreen(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            VideoCard(
-                thumbnail = R.drawable.thumbnail,
-                title = "A day in my life",
-                view = "20 views",
-                uploadTime = "2 days ago",
-            )
 
-            VideoCard(
-                thumbnail = R.drawable.thumbnail2,
-                title = "Living my dream day",
-                view = "24 views",
-                uploadTime = "24 hours",
-            )
+            if (videos.isEmpty()) {
+
+                EmptyVideosState()
+
+            } else {
+
+                videos.forEach { item ->
+
+                    VideoCard(
+                        video = item.video,
+                        thumbnailUrl = item.thumbnailUrl,
+                        onClick = {
+                            onVideoClick(item.video.id)
+                        }
+                    )
+                }
+            }
 
 //            Just for testing
 //            LoadingState()
@@ -253,67 +263,125 @@ fun ProfileScreen(
 
     }
 }
+
+
+
 @Composable
 fun VideoCard(
-    thumbnail: Int,
-    title: String,
-    view: String,
-    uploadTime: String
-){
+    video: Video,
+    thumbnailUrl: String?,
+    onClick: () -> Unit
+) {
     Spacer(
         modifier = Modifier.height(AppSpacing.Medium)
     )
 
-    // Video Card
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                onClick()
+            }
     ) {
 
-        Image(
-            painter = painterResource(thumbnail),
-            contentDescription = "Video thumbnail",
-            contentScale = ContentScale.Crop,
+        // Temporary thumbnail placeholder
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(AppSpacing.thumbnailHeight)
                 .clip(MaterialTheme.shapes.large)
-        )
+                .background(Color.Black)
+        ) {
+            AsyncImage(
+                model = thumbnailUrl,
+                contentDescription = "Video thumbnail",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
 
         Spacer(
             modifier = Modifier.height(AppSpacing.Small)
         )
 
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
+        var menuExpanded by remember {
+            mutableStateOf(false)
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Text(
+                text = video.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f)
+            )
+
+            Box {
+
+                IconButton(
+                    onClick = {
+                        menuExpanded = true
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Video options"
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = {
+                        menuExpanded = false
+                    }
+                ) {
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Edit")
+                        },
+                        onClick = {
+                            menuExpanded = false
+
+                            // Edit functionality later
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = "Delete",
+                                color = Color.Red
+                            )
+
+                        },
+                        onClick = {
+                            menuExpanded = false
+
+                            // Delete functionality later
+                        }
+                    )
+                }
+            }
+        }
 
         Spacer(
             modifier = Modifier.height(AppSpacing.ExtraSmall)
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = view,
-                style = MaterialTheme.typography.bodySmall
-            )
-
-            Text(
-                text = uploadTime,
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
+        Text(
+            text = "Uploaded video",
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 
     Spacer(
         modifier = Modifier.height(AppSpacing.Large)
     )
-
 }
 
 @Composable

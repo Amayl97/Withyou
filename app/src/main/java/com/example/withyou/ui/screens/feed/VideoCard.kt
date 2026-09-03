@@ -1,6 +1,6 @@
 package com.example.withyou.ui.screens.feed
 
-import androidx.compose.foundation.Image
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,14 +16,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import coil3.compose.AsyncImage
+import com.example.withyou.R
+import com.example.withyou.data.model.Video
 import com.example.withyou.ui.theme.AppSpacing
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun VideoCard(
-    thumbnail: Int,
-    title: String,
-    view: String,
-    uploadTime: String,
+    video: Video,
+    thumbnailUrl: String?,
     onClick: () -> Unit
 ) {
     Spacer(
@@ -31,25 +40,42 @@ fun VideoCard(
     )
 
     Column(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() }
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
     ) {
+        var imageLoaded by remember(thumbnailUrl) {
+            mutableStateOf(false)
+        }
 
-        Image(
-            painter = painterResource(thumbnail),
-            contentDescription = "Video thumbnail",
-            contentScale = ContentScale.Crop,
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(AppSpacing.thumbnailHeight)
                 .clip(MaterialTheme.shapes.large)
-        )
+                .background(Color.Black)
+        ) {
+
+            AsyncImage(
+                model = thumbnailUrl,
+                contentDescription = "Video thumbnail",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+                onSuccess = {
+                    imageLoaded = true
+                },
+                onError = {
+                    imageLoaded = false
+                }
+            )
+        }
 
         Spacer(
             modifier = Modifier.height(AppSpacing.Small)
         )
 
         Text(
-            text = title,
+            text = video.title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold
         )
@@ -63,12 +89,12 @@ fun VideoCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = view,
+                text = "0 views",
                 style = MaterialTheme.typography.bodySmall
             )
 
             Text(
-                text = uploadTime,
+                text = "Recently",
                 style = MaterialTheme.typography.bodySmall
             )
         }

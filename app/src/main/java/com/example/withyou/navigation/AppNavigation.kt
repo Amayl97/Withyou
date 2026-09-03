@@ -170,6 +170,11 @@ fun AppNavigation() {
                     onContacts = {
                         navController.navigate(Screen.Contacts.route)
                     },
+                    onVideoClick = { videoId ->
+                        navController.navigate(
+                            Screen.VideoPlayer.createRoute(videoId)
+                        )
+                    },
                     viewModel = viewModel
                 )
             }
