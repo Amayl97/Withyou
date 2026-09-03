@@ -174,16 +174,39 @@ fun validateAndUpload(
                         videoId = videoId
                     )
                 // 3. Upload custom thumbnail if selected
+                // 3. Upload custom thumbnail if selected
+                Log.d(
+                    "THUMBNAIL_DEBUG",
+                    "Selected thumbnail URI: ${currentState.selectedThumbnailUri}"
+                )
+
                 val uploadedThumbnailPath =
                     currentState.selectedThumbnailUri?.let { thumbnailUri ->
 
-                        videoStorageRepository.uploadThumbnail(
+                        Log.d(
+                            "THUMBNAIL_DEBUG",
+                            "Starting thumbnail upload: $thumbnailUri"
+                        )
+
+                        val path = videoStorageRepository.uploadThumbnail(
                             contentResolver = contentResolver,
                             thumbnailUri = thumbnailUri,
                             userId = ownerId,
                             videoId = videoId
                         )
+
+                        Log.d(
+                            "THUMBNAIL_DEBUG",
+                            "Thumbnail uploaded successfully: $path"
+                        )
+
+                        path
                     }
+
+                Log.d(
+                    "THUMBNAIL_DEBUG",
+                    "Final thumbnail path: $uploadedThumbnailPath"
+                )
                 val allowedContactIds =
                     when (currentState.visibility) {
 

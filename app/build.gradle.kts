@@ -64,6 +64,8 @@ android {
 }
 
 dependencies {
+    implementation("io.coil-kt.coil3:coil-compose:3.0.4")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.4")
 //GSON
     implementation("com.google.code.gson:gson:2.13.1")
 //    Supabase
@@ -75,7 +77,6 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.17.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
-    implementation("io.coil-kt.coil3:coil-compose:3.0.4")
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
     implementation(libs.hilt.android)

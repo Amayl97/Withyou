@@ -102,10 +102,13 @@ class AuthenticationRepositoryImpl @Inject constructor(
     override suspend fun getFirebaseIdToken(): String? {
         val user = firebaseAuth.currentUser ?: return null
 
-        return try {
-            user.getIdToken(false).await().token
-        } catch (e: Exception) {
-            null
-        }
+        val tokenResult = user.getIdToken(true).await()
+
+        Log.d(
+            "SUPABASE_AUTH_DEBUG",
+            "Token claims: ${tokenResult.claims}"
+        )
+
+        return tokenResult.token
     }
 }

@@ -1,5 +1,6 @@
 package com.example.withyou.di
 
+import android.util.Log
 import com.example.withyou.BuildConfig
 import com.example.withyou.authentication.data.AuthenticationRepository
 import dagger.Module
@@ -27,6 +28,11 @@ object SupabaseModule {
         ) {
 
             accessToken = {
+                Log.d(
+                    "SUPABASE_AUTH_DEBUG",
+                    "Supabase requesting Firebase token"
+                )
+
                 authenticationRepository.getFirebaseIdToken()
             }
 

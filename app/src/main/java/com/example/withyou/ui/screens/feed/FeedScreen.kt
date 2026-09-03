@@ -91,11 +91,12 @@ fun FeedScreen(
                     )
                 }
 
-                items(uiState.videos) { video ->
+                items(uiState.videos) { item ->
                     VideoCard(
-                        video = video,
+                        video = item.video,
+                        thumbnailUrl = item.thumbnailUrl,
                         onClick = {
-                            onVideoClick(video.id)
+                            onVideoClick(item.video.id)
                         }
                     )
                 }

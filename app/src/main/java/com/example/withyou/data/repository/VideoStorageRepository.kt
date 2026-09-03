@@ -2,6 +2,7 @@ package com.example.withyou.data.repository
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.util.Log
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.storage.storage
 import java.io.ByteArrayOutputStream
@@ -137,4 +138,20 @@ class VideoStorageRepository @Inject constructor(
                 expiresIn = 30.minutes
             )
     }
+
+    suspend fun getSignedThumbnailUrl(thumbnailPath: String): String {
+
+        Log.d(
+            "SUPABASE_AUTH_DEBUG",
+            "Requesting signed thumbnail URL"
+        )
+
+        return supabaseClient.storage
+            .from("videos")
+            .createSignedUrl(
+                path = thumbnailPath,
+                expiresIn = 30.minutes
+            )
+    }
+
 }
