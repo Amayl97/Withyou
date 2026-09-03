@@ -20,6 +20,14 @@ import coil3.compose.AsyncImage
 import com.example.withyou.R
 import com.example.withyou.data.model.Video
 import com.example.withyou.ui.theme.AppSpacing
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun VideoCard(
@@ -36,30 +44,31 @@ fun VideoCard(
             .fillMaxWidth()
             .clickable { onClick() }
     ) {
-        AsyncImage(
-            model = thumbnailUrl,
-            contentDescription = "Video thumbnail",
-            contentScale = ContentScale.Crop,
+        var imageLoaded by remember(thumbnailUrl) {
+            mutableStateOf(false)
+        }
+
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(AppSpacing.thumbnailHeight)
-                .clip(MaterialTheme.shapes.large),
-            placeholder = painterResource(R.drawable.thumbnail),
-            error = painterResource(R.drawable.thumbnail),
-            onSuccess = {
-                Log.d(
-                    "THUMBNAIL_DEBUG",
-                    "Coil loaded thumbnail successfully"
-                )
-            },
-            onError = {
-                Log.e(
-                    "THUMBNAIL_DEBUG",
-                    "Coil FAILED to load thumbnail",
-                    it.result.throwable
-                )
-            }
-        )
+                .clip(MaterialTheme.shapes.large)
+                .background(Color.Black)
+        ) {
+
+            AsyncImage(
+                model = thumbnailUrl,
+                contentDescription = "Video thumbnail",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+                onSuccess = {
+                    imageLoaded = true
+                },
+                onError = {
+                    imageLoaded = false
+                }
+            )
+        }
 
         Spacer(
             modifier = Modifier.height(AppSpacing.Small)
