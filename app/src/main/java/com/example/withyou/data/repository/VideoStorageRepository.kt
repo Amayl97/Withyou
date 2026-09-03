@@ -1,6 +1,7 @@
 package com.example.withyou.data.repository
 
 import android.content.ContentResolver
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import io.github.jan.supabase.SupabaseClient
@@ -154,4 +155,32 @@ class VideoStorageRepository @Inject constructor(
             )
     }
 
+    suspend fun uploadThumbnailBitmap(
+        bitmap: Bitmap,
+        userId: String,
+        videoId: String
+    ): String {
+
+        val thumbnailPath = createThumbnailPath(
+            userId = userId,
+            videoId = videoId
+        )
+
+        val outputStream = ByteArrayOutputStream()
+
+        bitmap.compress(
+            Bitmap.CompressFormat.JPEG,
+            90,
+            outputStream
+        )
+
+        supabaseClient.storage
+            .from("videos")
+            .upload(
+                path = thumbnailPath,
+                data = outputStream.toByteArray()
+            )
+
+        return thumbnailPath
+    }
 }

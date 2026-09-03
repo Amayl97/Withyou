@@ -173,34 +173,30 @@ fun validateAndUpload(
                         userId = ownerId,
                         videoId = videoId
                     )
-                // 3. Upload custom thumbnail if selected
-                // 3. Upload custom thumbnail if selected
-                Log.d(
-                    "THUMBNAIL_DEBUG",
-                    "Selected thumbnail URI: ${currentState.selectedThumbnailUri}"
-                )
 
+                // 3. Upload thumbnail
                 val uploadedThumbnailPath =
-                    currentState.selectedThumbnailUri?.let { thumbnailUri ->
+                    if (currentState.selectedThumbnailUri != null) {
 
-                        Log.d(
-                            "THUMBNAIL_DEBUG",
-                            "Starting thumbnail upload: $thumbnailUri"
-                        )
-
-                        val path = videoStorageRepository.uploadThumbnail(
+                        // Custom thumbnail selected
+                        videoStorageRepository.uploadThumbnail(
                             contentResolver = contentResolver,
-                            thumbnailUri = thumbnailUri,
+                            thumbnailUri = currentState.selectedThumbnailUri,
                             userId = ownerId,
                             videoId = videoId
                         )
 
-                        Log.d(
-                            "THUMBNAIL_DEBUG",
-                            "Thumbnail uploaded successfully: $path"
-                        )
+                    } else {
 
-                        path
+                        // No custom thumbnail → use extracted thumbnail
+                        currentState.thumbnail?.let { bitmap ->
+
+                            videoStorageRepository.uploadThumbnailBitmap(
+                                bitmap = bitmap,
+                                userId = ownerId,
+                                videoId = videoId
+                            )
+                        }
                     }
 
                 Log.d(
@@ -264,6 +260,8 @@ fun validateAndUpload(
             }
         }
     }
+
+
 
 //This prevents retry from starting another upload while one is already running.
     fun retryUpload(contentResolver: ContentResolver) {
