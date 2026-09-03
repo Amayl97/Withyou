@@ -48,7 +48,7 @@ import com.example.withyou.ui.theme.WhiteBackground
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import coil3.compose.AsyncImage
-
+import com.example.withyou.ui.screens.feed.VideoCard
 
 
 @Composable
@@ -198,12 +198,13 @@ fun ProfileScreen(
 
             } else {
 
-                videos.forEach { video ->
+                videos.forEach { item ->
 
                     VideoCard(
-                        video = video,
+                        video = item.video,
+                        thumbnailUrl = item.thumbnailUrl,
                         onClick = {
-                            onVideoClick(video.id)
+                            onVideoClick(item.video.id)
                         }
                     )
                 }
@@ -268,6 +269,7 @@ fun ProfileScreen(
 @Composable
 fun VideoCard(
     video: Video,
+    thumbnailUrl: String?,
     onClick: () -> Unit
 ) {
     Spacer(
@@ -283,15 +285,20 @@ fun VideoCard(
     ) {
 
         // Temporary thumbnail placeholder
-        Image(
-            painter = painterResource(R.drawable.thumbnail),
-            contentDescription = "Video thumbnail",
-            contentScale = ContentScale.Crop,
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(AppSpacing.thumbnailHeight)
                 .clip(MaterialTheme.shapes.large)
-        )
+                .background(Color.Black)
+        ) {
+            AsyncImage(
+                model = thumbnailUrl,
+                contentDescription = "Video thumbnail",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
 
         Spacer(
             modifier = Modifier.height(AppSpacing.Small)
