@@ -47,6 +47,7 @@ import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import coil3.compose.AsyncImage
 import com.example.withyou.ui.screens.feed.VideoCard
 
@@ -284,7 +285,6 @@ fun VideoCard(
             }
     ) {
 
-        // Temporary thumbnail placeholder
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -317,6 +317,8 @@ fun VideoCard(
                 text = video.title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
 
