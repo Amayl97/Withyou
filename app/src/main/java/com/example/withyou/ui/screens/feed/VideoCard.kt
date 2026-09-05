@@ -94,7 +94,7 @@ fun VideoCard(
             )
 
             Text(
-                text = "Recently",
+                text = formatTimeAgo(video.createdAt),
                 style = MaterialTheme.typography.bodySmall
             )
         }
