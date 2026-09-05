@@ -6,14 +6,22 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import com.example.withyou.ui.theme.AppSpacing
@@ -27,21 +35,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.withyou.authentication.presentation.AuthViewModel
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     onOtpSent: () -> Unit,
     viewModel: AuthViewModel
 ) {
-    var phoneNumber by remember {
+    var countryCode by remember {
+        mutableStateOf("+92")
+    }
+    var countrySearch by remember {
         mutableStateOf("")
     }
 
+    var countryDropdownExpanded by remember {
+        mutableStateOf(false)
+    }
+    var phoneNumber by remember {
+        mutableStateOf("")
+    }
     val context = LocalContext.current
     val activity = context as Activity
     val isLoading = viewModel.isLoading.value
@@ -66,19 +84,101 @@ fun LoginScreen(
             modifier = Modifier.height(AppSpacing.Small)
         )
 
-        OutlinedTextField(
-            value = phoneNumber,
-            onValueChange = {
-                phoneNumber = it
-            },
-            label = {
-                Text(
-                    text = "Phone Number",
-                    style = MaterialTheme.typography.bodyMedium
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(AppSpacing.Small)
+        ) {
+
+            ExposedDropdownMenuBox(
+                expanded = countryDropdownExpanded,
+                onExpandedChange = {
+                    countryDropdownExpanded = !countryDropdownExpanded
+                },
+                modifier = Modifier.width(120.dp)
+            ) {
+
+                OutlinedTextField(
+                    value = countrySearch.ifBlank { countryCode },
+                    onValueChange = {
+                        countrySearch = it
+                        countryDropdownExpanded = true
+                    },
+                    label = {
+                        Text(
+                            text = "Code",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = countryDropdownExpanded
+                        )
+                    },
+                    shape = MaterialTheme.shapes.medium,
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Phone
+                    ),
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
                 )
-            },
-            shape = MaterialTheme.shapes.medium
-        )
+
+                val filteredCountries = countryCodes.filter { country ->
+                    country.countryName.contains(
+                        countrySearch,
+                        ignoreCase = true
+                    ) ||
+                            country.code.contains(
+                                countrySearch,
+                                ignoreCase = true
+                            )
+                }
+
+                ExposedDropdownMenu(
+                    expanded = countryDropdownExpanded,
+                    onDismissRequest = {
+                        countryDropdownExpanded = false
+                    }
+                ) {
+
+                    filteredCountries.forEach { country ->
+
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = "${country.countryName} ${country.code}"
+                                )
+                            },
+                            onClick = {
+                                countryCode = country.code
+                                countrySearch = ""
+                                countryDropdownExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            OutlinedTextField(
+                value = phoneNumber,
+                onValueChange = {
+                    phoneNumber = it
+                },
+                label = {
+                    Text(
+                        text = "Phone Number",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                modifier = Modifier.weight(1f),
+                shape = MaterialTheme.shapes.medium,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Phone
+                )
+            )
+        }
 
         Spacer(
             modifier = Modifier.height(AppSpacing.Medium)
@@ -87,7 +187,7 @@ fun LoginScreen(
         Button(
             onClick = {
                 viewModel.sendOtp(
-                    phoneNumber = phoneNumber,
+                    phoneNumber = countryCode + phoneNumber,
                     activity = activity,
                     onOtpSent = onOtpSent
                 )
@@ -120,7 +220,8 @@ fun LoginScreen(
 
             Text(
                 text = errorMessage,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
