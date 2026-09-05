@@ -13,12 +13,18 @@ class UserRepository @Inject constructor(
     private val usersCollection = firestore.collection("users")
 
     suspend fun createUser(user: User) {
+
+        val normalizedUser = user.copy(
+            phoneNumber = PhoneNumberUtils.normalize(
+                user.phoneNumber
+            )
+        )
+
         usersCollection
-            .document(user.uid)
-            .set(user)
+            .document(normalizedUser.uid)
+            .set(normalizedUser)
             .await()
     }
-
     suspend fun getUser(uid: String): User? {
         val document = usersCollection
             .document(uid)
@@ -29,9 +35,16 @@ class UserRepository @Inject constructor(
     }
 
     suspend fun updateUser(user: User) {
+
+        val normalizedUser = user.copy(
+            phoneNumber = PhoneNumberUtils.normalize(
+                user.phoneNumber
+            )
+        )
+
         usersCollection
-            .document(user.uid)
-            .set(user)
+            .document(normalizedUser.uid)
+            .set(normalizedUser)
             .await()
     }
 
