@@ -111,21 +111,16 @@ fun validateAndUpload(
             null
         }
 
-        val descriptionError = if (currentState.description.trim().isEmpty()) {
-            "Description is required"
-        } else {
-            null
-        }
+
 
     val isValid =
         titleError == null &&
-                descriptionError == null &&
                 contactError == null &&
                 currentState.selectedVideoUri != null
 
+
     _uiState.value = currentState.copy(
         titleError = titleError,
-        descriptionError = descriptionError,
         contactError = contactError,
         isReadyForUpload = isValid
     )
