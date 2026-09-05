@@ -595,29 +595,26 @@ fun VideoPlayerScreen(
                             // Description
                             // -------------------------------------------------
 
-                            Text(
-                                text = "Description",
-                                style =
-                                    MaterialTheme.typography
-                                        .titleMedium
-                            )
+                            // -------------------------------------------------
+// Description
+// -------------------------------------------------
 
-                            Spacer(
-                                modifier =
-                                    Modifier.height(6.dp)
-                            )
+                            if (uiState.videoDescription.isNotBlank()) {
 
-                            Text(
-                                text =
-                                    uiState.videoDescription
-                                        .ifBlank {
-                                            "No description"
-                                        },
+                                Text(
+                                    text = "Description",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
 
-                                style =
-                                    MaterialTheme.typography
-                                        .bodyMedium
-                            )
+                                Spacer(
+                                    modifier = Modifier.height(6.dp)
+                                )
+
+                                Text(
+                                    text = uiState.videoDescription,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
                         }
                     }
                 }
