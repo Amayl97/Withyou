@@ -57,6 +57,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil3.compose.AsyncImage
 import com.example.withyou.R
+import com.example.withyou.data.util.formatViewCount
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -91,7 +92,13 @@ fun VideoPlayerScreen(
     var videoHeight by remember {
         mutableStateOf(0)
     }
+    var maxWatchedPosition by remember {
+        mutableStateOf(0L)
+    }
 
+    var viewRecorded by remember {
+        mutableStateOf(false)
+    }
     val originalOrientation = remember {
         activity.requestedOrientation
     }
@@ -299,6 +306,40 @@ fun VideoPlayerScreen(
                             }
                     }
 
+                LaunchedEffect(player) {
+
+                    while (true) {
+
+                        if (
+                            player.isPlaying &&
+                            player.duration > 0
+                        ) {
+
+                            maxWatchedPosition =
+                                maxOf(
+                                    maxWatchedPosition,
+                                    player.currentPosition
+                                )
+
+                            val watchedPercentage =
+                                maxWatchedPosition.toFloat() /
+                                        player.duration.toFloat()
+
+                            if (
+                                watchedPercentage > 0.5f &&
+                                !viewRecorded
+                            ) {
+
+                                viewRecorded = true
+
+                                viewModel.recordView(videoId)
+                            }
+                        }
+
+                        kotlinx.coroutines.delay(1000)
+                    }
+                }
+
                 // -------------------------------------------------
                 // Scrollable player content
                 // -------------------------------------------------
@@ -501,14 +542,20 @@ fun VideoPlayerScreen(
 
                             Text(
                                 text = uiState.videoTitle,
-                                style =
-                                    MaterialTheme.typography
-                                        .titleLarge
+                                style = MaterialTheme.typography.titleLarge
                             )
 
                             Spacer(
-                                modifier =
-                                    Modifier.height(12.dp)
+                                modifier = Modifier.height(6.dp)
+                            )
+
+                            Text(
+                                text = formatViewCount(uiState.viewCount),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+
+                            Spacer(
+                                modifier = Modifier.height(12.dp)
                             )
 
                             // -------------------------------------------------

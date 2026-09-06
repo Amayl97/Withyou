@@ -123,4 +123,64 @@ suspend fun getVideos(): Result<List<Video>> {
             Result.failure(e)
         }
     }
+
+    suspend fun recordView(videoId: String): Result<Boolean> {
+        return try {
+
+            val currentUserId = auth.currentUser?.uid
+                ?: return Result.failure(
+                    IllegalStateException("User is not logged in")
+                )
+
+            val viewRef = firestore
+                .collection("videos")
+                .document(videoId)
+                .collection("views")
+                .document(currentUserId)
+
+            val viewDocument = viewRef.get().await()
+
+            if (viewDocument.exists()) {
+                return Result.success(false)
+            }
+
+            firestore.runTransaction { transaction ->
+
+                val videoRef = firestore
+                    .collection("videos")
+                    .document(videoId)
+
+                val videoSnapshot = transaction.get(videoRef)
+
+                val currentViewCount =
+                    videoSnapshot.getLong("viewCount") ?: 0L
+
+                transaction.update(
+                    videoRef,
+                    "viewCount",
+                    currentViewCount + 1
+                )
+
+                transaction.set(
+                    viewRef,
+                    mapOf(
+                        "userId" to currentUserId,
+                        "viewedAt" to System.currentTimeMillis()
+                    )
+                )
+            }.await()
+
+            Result.success(true)
+
+        } catch (e: Exception) {
+
+            Log.e(
+                "VideoRepository",
+                "Failed to record video view",
+                e
+            )
+
+            Result.failure(e)
+        }
+    }
 }
