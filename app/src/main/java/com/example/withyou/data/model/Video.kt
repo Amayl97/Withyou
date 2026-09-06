@@ -10,5 +10,6 @@ data class Video(
     val visibility: String = "private",
     val allowedContactIds: List<String> = emptyList(),
     val createdAt: Long = 0L,
-    val duration: Long = 0L
+    val duration: Long = 0L,
+    val viewCount: Long = 0L
 )

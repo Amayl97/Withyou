@@ -7,6 +7,7 @@ data class VideoPlayerUiState(
     val videoUrl: String? = null,
     val videoTitle: String = "",
     val videoDescription: String = "",
+    val viewCount: Long = 0L,
     val owner: User? = null,
     val error: String? = null
 )

@@ -89,6 +89,7 @@ class VideoPlayerViewModel @Inject constructor(
                         videoUrl = videoUrl,
                         videoTitle = video.title,
                         videoDescription = video.description,
+                        viewCount = video.viewCount,
                         owner = owner
                     )
 
@@ -106,6 +107,50 @@ class VideoPlayerViewModel @Inject constructor(
                         error = e.message
                             ?: "Unable to load video"
                     )
+            }
+        }
+    }
+
+    fun recordView(videoId: String) {
+
+        viewModelScope.launch {
+
+            val result =
+                videoRepository.recordView(videoId)
+
+            if (result.isSuccess) {
+
+                val wasNewView =
+                    result.getOrNull() == true
+
+                if (wasNewView) {
+
+                    _uiState.value =
+                        _uiState.value.copy(
+                            viewCount =
+                                _uiState.value.viewCount + 1
+                        )
+
+                    Log.d(
+                        "VideoPlayer",
+                        "New video view recorded: $videoId"
+                    )
+
+                } else {
+
+                    Log.d(
+                        "VideoPlayer",
+                        "Video already viewed by this user"
+                    )
+                }
+
+            } else {
+
+                Log.e(
+                    "VideoPlayer",
+                    "Failed to record video view",
+                    result.exceptionOrNull()
+                )
             }
         }
     }
