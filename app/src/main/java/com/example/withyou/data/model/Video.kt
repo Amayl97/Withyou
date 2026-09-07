@@ -11,5 +11,5 @@ data class Video(
     val allowedContactIds: List<String> = emptyList(),
     val createdAt: Long = 0L,
     val duration: Long = 0L,
-    val viewCount: Long = 0L
+    val watched: Boolean = false
 )

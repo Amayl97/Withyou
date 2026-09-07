@@ -64,12 +64,22 @@ suspend fun getVideos(): Result<List<Video>> {
                     else -> false
                 }
             }
+            .map { video ->
 
-        val sortedVideos = videos.sortedByDescending { it.createdAt }
+                val watched = hasWatchedVideo(video.id)
+
+                video.copy(
+                    watched = watched
+                )
+            }
+
+        val sortedVideos = videos
+            .sortedByDescending { it.createdAt }
 
         Result.success(sortedVideos)
 
     } catch (e: Exception) {
+
         Result.failure(e)
     }
 }
@@ -138,37 +148,18 @@ suspend fun getVideos(): Result<List<Video>> {
                 .collection("views")
                 .document(currentUserId)
 
-            val viewDocument = viewRef.get().await()
+            val viewSnapshot = viewRef.get().await()
 
-            if (viewDocument.exists()) {
+            if (viewSnapshot.exists()) {
                 return Result.success(false)
             }
 
-            firestore.runTransaction { transaction ->
-
-                val videoRef = firestore
-                    .collection("videos")
-                    .document(videoId)
-
-                val videoSnapshot = transaction.get(videoRef)
-
-                val currentViewCount =
-                    videoSnapshot.getLong("viewCount") ?: 0L
-
-                transaction.update(
-                    videoRef,
-                    "viewCount",
-                    currentViewCount + 1
+            viewRef.set(
+                mapOf(
+                    "userId" to currentUserId,
+                    "viewedAt" to System.currentTimeMillis()
                 )
-
-                transaction.set(
-                    viewRef,
-                    mapOf(
-                        "userId" to currentUserId,
-                        "viewedAt" to System.currentTimeMillis()
-                    )
-                )
-            }.await()
+            ).await()
 
             Result.success(true)
 
@@ -181,6 +172,33 @@ suspend fun getVideos(): Result<List<Video>> {
             )
 
             Result.failure(e)
+        }
+    }
+
+    suspend fun hasWatchedVideo(videoId: String): Boolean {
+        return try {
+
+            val currentUserId = auth.currentUser?.uid
+                ?: return false
+
+            firestore
+                .collection("videos")
+                .document(videoId)
+                .collection("views")
+                .document(currentUserId)
+                .get()
+                .await()
+                .exists()
+
+        } catch (e: Exception) {
+
+            Log.e(
+                "VideoRepository",
+                "Failed to check video watch status",
+                e
+            )
+
+            false
         }
     }
 }

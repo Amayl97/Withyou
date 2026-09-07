@@ -1,6 +1,7 @@
 
 
 const {onUserCreated} = require("firebase-functions/v2/identity");
+const {onDocumentCreated} = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
 
 admin.initializeApp();
@@ -18,3 +19,4 @@ exports.setSupabaseRole = onUserCreated(async (event) => {
 
   console.log(`Set authenticated role for user: ${user.uid}`);
 });
+

@@ -89,7 +89,7 @@ class VideoPlayerViewModel @Inject constructor(
                         videoUrl = videoUrl,
                         videoTitle = video.title,
                         videoDescription = video.description,
-                        viewCount = video.viewCount,
+                        watched = videoRepository.hasWatchedVideo(videoId),
                         owner = owner
                     )
 
@@ -127,8 +127,7 @@ class VideoPlayerViewModel @Inject constructor(
 
                     _uiState.value =
                         _uiState.value.copy(
-                            viewCount =
-                                _uiState.value.viewCount + 1
+                            watched = true
                         )
 
                     Log.d(
