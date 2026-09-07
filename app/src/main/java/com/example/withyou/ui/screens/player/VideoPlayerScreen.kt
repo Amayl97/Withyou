@@ -57,7 +57,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil3.compose.AsyncImage
 import com.example.withyou.R
-import com.example.withyou.data.util.formatViewCount
+
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -307,7 +307,6 @@ fun VideoPlayerScreen(
                     }
 
                 LaunchedEffect(player) {
-
                     while (true) {
 
                         if (
@@ -325,10 +324,23 @@ fun VideoPlayerScreen(
                                 maxWatchedPosition.toFloat() /
                                         player.duration.toFloat()
 
+                            Log.d(
+                                "VideoViewTracking",
+                                "position=${player.currentPosition}, " +
+                                        "duration=${player.duration}, " +
+                                        "percentage=$watchedPercentage, " +
+                                        "recorded=$viewRecorded"
+                            )
+
                             if (
                                 watchedPercentage > 0.5f &&
                                 !viewRecorded
                             ) {
+
+                                Log.d(
+                                    "VideoViewTracking",
+                                    "MORE THAN 50% — recording view"
+                                )
 
                                 viewRecorded = true
 
@@ -550,7 +562,11 @@ fun VideoPlayerScreen(
                             )
 
                             Text(
-                                text = formatViewCount(uiState.viewCount),
+                                text = if (uiState.watched) {
+                                    "Watched"
+                                } else {
+                                    "Not watched"
+                                },
                                 style = MaterialTheme.typography.bodyMedium
                             )
 

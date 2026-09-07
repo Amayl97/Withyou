@@ -26,7 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
-import com.example.withyou.data.util.formatViewCount
+
 
 @Composable
 fun VideoCard(
@@ -90,7 +90,11 @@ fun VideoCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = formatViewCount(video.viewCount),
+                text = if (video.watched) {
+                    "Watched"
+                } else {
+                    "Not watched"
+                },
                 style = MaterialTheme.typography.bodySmall
             )
 
