@@ -58,7 +58,8 @@ fun ProfileScreen(
     onEditProfile: () -> Unit,
     onContacts: () -> Unit,
     onVideoClick: (String) -> Unit,
-    viewModel: ProfileViewModel
+    viewModel: ProfileViewModel,
+    onEditVideo: (String) -> Unit,
 ) {
     LaunchedEffect(Unit) {
         viewModel.loadProfile()
@@ -206,6 +207,9 @@ fun ProfileScreen(
                         thumbnailUrl = item.thumbnailUrl,
                         onClick = {
                             onVideoClick(item.video.id)
+                        },
+                        onEdit = {
+                            onEditVideo(item.video.id)
                         }
                     )
                 }
@@ -266,12 +270,12 @@ fun ProfileScreen(
 }
 
 
-
 @Composable
 fun VideoCard(
     video: Video,
     thumbnailUrl: String?,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onEdit: () -> Unit
 ) {
     Spacer(
         modifier = Modifier.height(AppSpacing.Medium)
@@ -348,8 +352,7 @@ fun VideoCard(
                         },
                         onClick = {
                             menuExpanded = false
-
-                            // Edit functionality later
+                            onEdit()
                         }
                     )
 
