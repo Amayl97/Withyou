@@ -14,14 +14,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun EditVideoScreen(
     videoId: String,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: EditVideoViewModel
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    LaunchedEffect(videoId) {
+        viewModel.loadVideo(videoId)
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()

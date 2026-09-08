@@ -203,7 +203,8 @@ fun AppNavigation() {
                     videoId = videoId ?: "",
                     onBack = {
                         navController.popBackStack()
-                    }
+                    },
+                    viewModel = hiltViewModel()
                 )
             }
 
