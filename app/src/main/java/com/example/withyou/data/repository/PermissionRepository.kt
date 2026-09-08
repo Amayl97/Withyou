@@ -47,4 +47,22 @@ class PermissionRepository @Inject constructor(
             Result.failure(e)
         }
     }
+    suspend fun hasPermission(
+        videoId: String,
+        userId: String
+    ): Result<Boolean> {
+        return try {
+            val snapshot = firestore
+                .collection("videos")
+                .document(videoId)
+                .collection("permissions")
+                .document(userId)
+                .get()
+                .await()
+
+            Result.success(snapshot.exists())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
