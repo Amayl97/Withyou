@@ -29,4 +29,22 @@ class PermissionRepository @Inject constructor(
             Result.failure(e)
         }
     }
+    suspend fun deletePermission(
+        videoId: String,
+        userId: String
+    ): Result<Unit> {
+        return try {
+            firestore
+                .collection("videos")
+                .document(videoId)
+                .collection("permissions")
+                .document(userId)
+                .delete()
+                .await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
