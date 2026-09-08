@@ -229,6 +229,10 @@ fun validateAndUpload(
                     createdAt = System.currentTimeMillis(),
                     duration = currentState.videoInfo?.duration ?: 0L
                 )
+                videoRepository
+                    .saveVideo(video)
+                    .getOrThrow()
+
                 if (currentState.visibility == "selected_contacts") {
                     createPermissions(
                         videoId = videoId,
