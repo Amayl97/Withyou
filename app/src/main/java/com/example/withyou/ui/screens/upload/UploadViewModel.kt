@@ -6,9 +6,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.withyou.data.model.Contact
+import com.example.withyou.data.model.Permission
 import com.example.withyou.data.model.Video
 import com.example.withyou.data.repository.BackendTestRepository
 import com.example.withyou.data.repository.ContactsRepository
+import com.example.withyou.data.repository.PermissionRepository
 import com.example.withyou.data.repository.UserRepository
 import com.example.withyou.data.repository.VideoRepository
 import com.example.withyou.data.repository.VideoStorageRepository
@@ -31,7 +33,8 @@ class UploadViewModel @Inject constructor(
     private val auth: FirebaseAuth,
     private val userRepository: UserRepository,
     private val contactsRepository: ContactsRepository,
-    private val backendTestRepository: BackendTestRepository
+    private val backendTestRepository: BackendTestRepository,
+    private val permissionRepository: PermissionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UploadUiState())
@@ -226,7 +229,12 @@ fun validateAndUpload(
                     createdAt = System.currentTimeMillis(),
                     duration = currentState.videoInfo?.duration ?: 0L
                 )
-                videoRepository.saveVideo(video).getOrThrow()
+                if (currentState.visibility == "selected_contacts") {
+                    createPermissions(
+                        videoId = videoId,
+                        userIds = allowedContactIds
+                    )
+                }
 
 // Upload and metadata save succeeded
                 _uiState.value = _uiState.value.copy(
@@ -383,6 +391,24 @@ fun validateAndUpload(
                     e
                 )
             }
+        }
+    }
+
+    private suspend fun createPermissions(
+        videoId: String,
+        userIds: List<String>
+    ) {
+        userIds.forEach { userId ->
+
+            val permission = Permission(
+                userId = userId,
+                videoId = videoId,
+                createdAt = System.currentTimeMillis()
+            )
+
+            permissionRepository
+                .createPermission(permission)
+                .getOrThrow()
         }
     }
 }
