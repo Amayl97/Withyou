@@ -65,4 +65,23 @@ class PermissionRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun getPermissions(
+        videoId: String
+    ): Result<List<Permission>> {
+        return try {
+            val snapshot = firestore
+                .collection("videos")
+                .document(videoId)
+                .collection("permissions")
+                .get()
+                .await()
+
+            Result.success(
+                snapshot.toObjects(Permission::class.java)
+            )
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
