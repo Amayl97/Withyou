@@ -1,8 +1,7 @@
 package com.example.withyou.navigation
 
 import android.annotation.SuppressLint
-
-
+import com.example.withyou.ui.screens.profile.EditVideoScreen
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -175,6 +174,11 @@ fun AppNavigation() {
                             Screen.VideoPlayer.createRoute(videoId)
                         )
                     },
+                    onEditVideo = { videoId ->
+                        navController.navigate(
+                            Screen.EditVideo.createRoute(videoId)
+                        )
+                    },
                     viewModel = viewModel
                 )
             }
@@ -187,6 +191,21 @@ fun AppNavigation() {
                 },
                     viewModel = viewModel
                     )
+            }
+            composable(
+                route = Screen.EditVideo.route
+            ) { backStackEntry ->
+
+                val videoId = backStackEntry.arguments
+                    ?.getString("videoId")
+
+                EditVideoScreen(
+                    videoId = videoId ?: "",
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    viewModel = hiltViewModel()
+                )
             }
 
             composable(Screen.Contacts.route) {

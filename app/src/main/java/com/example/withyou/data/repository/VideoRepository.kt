@@ -9,7 +9,8 @@ import javax.inject.Inject
 
 class VideoRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val permissionRepository: PermissionRepository
 ) {
 
     suspend fun saveVideo(video: Video): Result<Unit> {
@@ -45,7 +46,6 @@ suspend fun getVideos(): Result<List<Video>> {
 
                 when (video.visibility) {
 
-                    "public" -> true
 
                     "private" -> {
                         video.ownerId == currentUserId
@@ -57,10 +57,14 @@ suspend fun getVideos(): Result<List<Video>> {
                     }
 
                     "selected_contacts" -> {
-                        video.ownerId == currentUserId ||
-                                currentUserId in video.allowedContactIds
+                        if (video.ownerId == currentUserId) {
+                            true
+                        } else {
+                            permissionRepository
+                                .hasPermission(video.id, currentUserId)
+                                .getOrThrow()
+                        }
                     }
-
                     else -> false
                 }
             }
@@ -115,6 +119,11 @@ suspend fun getVideos(): Result<List<Video>> {
 
     suspend fun getVideoById(videoId: String): Result<Video> {
         return try {
+            val currentUserId = auth.currentUser?.uid
+                ?: return Result.failure(
+                    IllegalStateException("User is not logged in")
+                )
+
             val snapshot = firestore
                 .collection("videos")
                 .document(videoId)
@@ -125,6 +134,36 @@ suspend fun getVideos(): Result<List<Video>> {
                 ?: return Result.failure(
                     IllegalStateException("Video not found")
                 )
+
+            val hasAccess = when (video.visibility) {
+
+                "private" -> {
+                    video.ownerId == currentUserId
+                }
+
+                "contacts" -> {
+                    video.ownerId == currentUserId ||
+                            currentUserId in video.allowedContactIds
+                }
+
+                "selected_contacts" -> {
+                    if (video.ownerId == currentUserId) {
+                        true
+                    } else {
+                        permissionRepository
+                            .hasPermission(videoId, currentUserId)
+                            .getOrThrow()
+                    }
+                }
+
+                else -> false
+            }
+
+            if (!hasAccess) {
+                return Result.failure(
+                    IllegalAccessException("You do not have permission to view this video")
+                )
+            }
 
             Result.success(video)
 
@@ -201,4 +240,5 @@ suspend fun getVideos(): Result<List<Video>> {
             false
         }
     }
+
 }
