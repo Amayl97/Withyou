@@ -374,14 +374,6 @@ fun VideoCard(
             }
         }
 
-        Spacer(
-            modifier = Modifier.height(AppSpacing.ExtraSmall)
-        )
-
-        Text(
-            text = "Uploaded video",
-            style = MaterialTheme.typography.bodySmall
-        )
     }
 
     Spacer(

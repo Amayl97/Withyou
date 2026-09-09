@@ -29,7 +29,9 @@ class EditVideoViewModel @Inject constructor(
             result
                 .onSuccess { video ->
                     _uiState.value = EditVideoUiState(
-                        video = video
+                        video = video,
+                        title = video.title,
+                        description = video.description
                     )
                 }
                 .onFailure { error ->
@@ -38,5 +40,16 @@ class EditVideoViewModel @Inject constructor(
                     )
                 }
         }
+    }
+    fun updateTitle(title: String) {
+        _uiState.value = _uiState.value.copy(
+            title = title
+        )
+    }
+
+    fun updateDescription(description: String) {
+        _uiState.value = _uiState.value.copy(
+            description = description
+        )
     }
 }
