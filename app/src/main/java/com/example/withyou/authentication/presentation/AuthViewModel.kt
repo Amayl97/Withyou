@@ -1,12 +1,12 @@
 package com.example.withyou.authentication.presentation
 
+import com.revenuecat.purchases.Purchases
 import android.app.Activity
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.withyou.authentication.data.AuthenticationRepository
 import com.example.withyou.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -80,6 +80,28 @@ class AuthViewModel @Inject constructor(
                 Log.d("AUTH_FLOW", "UID = $uid")
 
                 if (uid != null) {
+                    Purchases.sharedInstance.logIn(
+                        uid,
+                        object : com.revenuecat.purchases.interfaces.LogInCallback {
+                            override fun onReceived(
+                                customerInfo: com.revenuecat.purchases.CustomerInfo,
+                                created: Boolean
+                            ) {
+                                val isPro = customerInfo.entitlements["withyou_pro"]?.isActive == true
+
+                                Log.d(
+                                    "REVENUECAT",
+                                    "CustomerInfo verified. WithYou Pro active = $isPro"
+                                )
+                            }
+                            override fun onError(error: com.revenuecat.purchases.PurchasesError) {
+                                Log.e(
+                                    "REVENUECAT",
+                                    "Failed to log in: ${error.message}"
+                                )
+                            }
+                        }
+                    )
                     viewModelScope.launch {
                         Log.d("AUTH_FLOW", "Getting user from Firestore")
 
@@ -101,6 +123,30 @@ class AuthViewModel @Inject constructor(
             },
             onError = { error ->
                 // We'll handle this properly with UI state later
+            }
+        )
+    }
+
+    fun verifyRevenueCatCustomerInfo() {
+        Purchases.sharedInstance.getCustomerInfo(
+            object : com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback {
+                override fun onReceived(
+                    customerInfo: com.revenuecat.purchases.CustomerInfo
+                ) {
+                    val isPro = customerInfo.entitlements["withyou_pro"]?.isActive == true
+
+                    Log.d(
+                        "REVENUECAT",
+                        "CustomerInfo verified. WithYou Pro active = $isPro"
+                    )
+                }
+
+                override fun onError(error: com.revenuecat.purchases.PurchasesError) {
+                    Log.e(
+                        "REVENUECAT",
+                        "Failed to fetch CustomerInfo: ${error.message}"
+                    )
+                }
             }
         )
     }

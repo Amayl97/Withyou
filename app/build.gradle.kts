@@ -23,6 +23,9 @@ val supabaseUrl = localProperties.getProperty("SUPABASE_URL")
 
 val supabaseKey = localProperties.getProperty("SUPABASE_KEY")
     ?: throw GradleException("SUPABASE_KEY is missing from local.properties")
+
+val revenueCatTestApiKey = localProperties.getProperty("REVENUECAT_TEST_API_KEY")
+    ?: throw GradleException("REVENUECAT_TEST_API_KEY is missing from local.properties")
 android {
     namespace = "com.example.withyou"
     compileSdk {
@@ -41,6 +44,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
         buildConfigField("String", "SUPABASE_KEY", "\"$supabaseKey\"")
+        buildConfigField(
+            "String",
+            "REVENUECAT_TEST_API_KEY",
+            "\"$revenueCatTestApiKey\""
+        )
     }
 
     buildTypes {
@@ -64,6 +72,7 @@ android {
 }
 
 dependencies {
+    implementation("com.revenuecat.purchases:purchases:10.15.1")
     implementation("io.coil-kt.coil3:coil-compose:3.0.4")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.4")
 //GSON

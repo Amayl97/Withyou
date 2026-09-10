@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.withyou.data.repository.VideoRepository
 import com.example.withyou.data.repository.VideoStorageRepository
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class FeedViewModel @Inject constructor(
     private val videoRepository: VideoRepository,
-    private val videoStorageRepository: VideoStorageRepository
+    private val videoStorageRepository: VideoStorageRepository,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FeedUiState())
@@ -90,4 +92,5 @@ class FeedViewModel @Inject constructor(
             }
         }
     }
+
 }
