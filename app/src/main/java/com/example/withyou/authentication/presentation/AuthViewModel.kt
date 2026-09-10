@@ -87,12 +87,13 @@ class AuthViewModel @Inject constructor(
                                 customerInfo: com.revenuecat.purchases.CustomerInfo,
                                 created: Boolean
                             ) {
+                                val isPro = customerInfo.entitlements["withyou_pro"]?.isActive == true
+
                                 Log.d(
                                     "REVENUECAT",
-                                    "RevenueCat user = ${customerInfo.originalAppUserId}, created = $created"
+                                    "CustomerInfo verified. WithYou Pro active = $isPro"
                                 )
                             }
-
                             override fun onError(error: com.revenuecat.purchases.PurchasesError) {
                                 Log.e(
                                     "REVENUECAT",
@@ -122,6 +123,30 @@ class AuthViewModel @Inject constructor(
             },
             onError = { error ->
                 // We'll handle this properly with UI state later
+            }
+        )
+    }
+
+    fun verifyRevenueCatCustomerInfo() {
+        Purchases.sharedInstance.getCustomerInfo(
+            object : com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback {
+                override fun onReceived(
+                    customerInfo: com.revenuecat.purchases.CustomerInfo
+                ) {
+                    val isPro = customerInfo.entitlements["withyou_pro"]?.isActive == true
+
+                    Log.d(
+                        "REVENUECAT",
+                        "CustomerInfo verified. WithYou Pro active = $isPro"
+                    )
+                }
+
+                override fun onError(error: com.revenuecat.purchases.PurchasesError) {
+                    Log.e(
+                        "REVENUECAT",
+                        "Failed to fetch CustomerInfo: ${error.message}"
+                    )
+                }
             }
         )
     }
