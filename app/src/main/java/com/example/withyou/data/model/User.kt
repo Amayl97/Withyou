@@ -8,6 +8,5 @@ data class User(
     val bio: String = "",
     val profileImagePath: String = "",
     val subscriptionStatus: String = "free",
-    val subscriptionExpiry: Long? = null,
-    val fcmToken: String? = null
+    val subscriptionExpiry: Long? = null
 )

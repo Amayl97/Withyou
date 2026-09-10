@@ -3,7 +3,6 @@ package com.example.withyou.ui.screens.feed
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.withyou.data.repository.FcmTokenRepository
 import com.example.withyou.data.repository.VideoRepository
 import com.example.withyou.data.repository.VideoStorageRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -18,7 +17,6 @@ import kotlinx.coroutines.launch
 class FeedViewModel @Inject constructor(
     private val videoRepository: VideoRepository,
     private val videoStorageRepository: VideoStorageRepository,
-    private val fcmTokenRepository: FcmTokenRepository,
     private val auth: FirebaseAuth
 ) : ViewModel() {
 
@@ -95,11 +93,4 @@ class FeedViewModel @Inject constructor(
         }
     }
 
-    fun registerFcmToken() {
-        val userId = auth.currentUser?.uid ?: return
-
-        viewModelScope.launch {
-            fcmTokenRepository.updateToken(userId)
-        }
-    }
 }

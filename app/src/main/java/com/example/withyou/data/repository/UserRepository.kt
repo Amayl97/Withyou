@@ -48,15 +48,6 @@ class UserRepository @Inject constructor(
             .await()
     }
 
-    suspend fun updateFcmToken(
-        uid: String,
-        token: String
-    ) {
-        usersCollection
-            .document(uid)
-            .update("fcmToken", token)
-            .await()
-    }
     suspend fun getUserByPhoneNumber(phoneNumber: String): User? {
 
         val normalizedPhoneNumber =

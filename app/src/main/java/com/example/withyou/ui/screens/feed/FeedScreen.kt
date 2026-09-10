@@ -1,12 +1,7 @@
 package com.example.withyou.ui.screens.feed
 
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -33,30 +28,8 @@ fun FeedScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    val notificationPermissionLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission()
-        ) {
-            // Permission result will be handled later if needed
-        }
-
-    LaunchedEffect(Unit) {
-        if (
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            notificationPermissionLauncher.launch(
-                Manifest.permission.POST_NOTIFICATIONS
-            )
-        }
-    }
-
     LaunchedEffect(Unit) {
         viewModel.loadVideos()
-        viewModel.registerFcmToken()
     }
 
     when {
