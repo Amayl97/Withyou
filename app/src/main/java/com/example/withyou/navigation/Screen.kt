@@ -15,6 +15,12 @@ sealed class Screen(val route: String){
             return "edit_video/$videoId"
         }
     }
+
+    object VideoAnalytics : Screen("video_analytics/{videoId}") {
+        fun createRoute(videoId: String): String {
+            return "video_analytics/$videoId"
+        }
+    }
     object CompleteProfile : Screen("complete_profile")
     object Settings : Screen("settings")
     object Upload : Screen("upload")

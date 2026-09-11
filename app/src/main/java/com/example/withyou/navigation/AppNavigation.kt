@@ -22,6 +22,7 @@ import com.example.withyou.ui.screens.profile.EditProfileScreen
 import com.example.withyou.ui.screens.profile.EditProfileViewModel
 import com.example.withyou.ui.screens.profile.ProfileScreen
 import com.example.withyou.ui.screens.profile.ProfileViewModel
+import com.example.withyou.ui.screens.profile.VideoAnalyticsScreen
 import com.example.withyou.ui.screens.registration.CompleteProfileScreen
 import com.example.withyou.ui.screens.registration.CompleteProfileViewModel
 import com.example.withyou.ui.screens.splash.SplashScreen
@@ -179,6 +180,11 @@ fun AppNavigation() {
                             Screen.EditVideo.createRoute(videoId)
                         )
                     },
+                    onAnalytics = { videoId ->
+                        navController.navigate(
+                            Screen.VideoAnalytics.createRoute(videoId)
+                        )
+                    },
                     viewModel = viewModel
                 )
             }
@@ -205,6 +211,20 @@ fun AppNavigation() {
                         navController.popBackStack()
                     },
                     viewModel = hiltViewModel()
+                )
+            }
+            composable(
+                route = Screen.VideoAnalytics.route
+            ) { backStackEntry ->
+
+                val videoId = backStackEntry.arguments
+                    ?.getString("videoId")
+
+                VideoAnalyticsScreen(
+                    videoId = videoId ?: "",
+                    onBack = {
+                        navController.popBackStack()
+                    }
                 )
             }
 

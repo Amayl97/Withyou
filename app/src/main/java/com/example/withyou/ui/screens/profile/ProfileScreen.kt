@@ -51,7 +51,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.example.withyou.authentication.presentation.PremiumViewModel
-import com.example.withyou.ui.screens.feed.VideoCard
 
 
 @Composable
@@ -62,8 +61,9 @@ fun ProfileScreen(
     onVideoClick: (String) -> Unit,
     viewModel: ProfileViewModel,
     onEditVideo: (String) -> Unit,
+    onAnalytics: (String) -> Unit,
     premiumViewModel: PremiumViewModel = hiltViewModel()
-) {
+){
     LaunchedEffect(Unit) {
         viewModel.loadProfile()
         premiumViewModel.checkPremiumStatus()
@@ -216,6 +216,9 @@ fun ProfileScreen(
                         },
                         onEdit = {
                             onEditVideo(item.video.id)
+                        },
+                        onAnalytics = {
+                            onAnalytics(item.video.id)
                         }
                     )
                 }
@@ -293,7 +296,8 @@ fun VideoCard(
     video: Video,
     thumbnailUrl: String?,
     onClick: () -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onAnalytics: () -> Unit
 ) {
     Spacer(
         modifier = Modifier.height(AppSpacing.Medium)
@@ -371,6 +375,16 @@ fun VideoCard(
                         onClick = {
                             menuExpanded = false
                             onEdit()
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Analytics")
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onAnalytics()
                         }
                     )
 
