@@ -1,6 +1,7 @@
 package com.example.withyou.ui.screens.feed
 
-
+import android.util.Log
+import com.example.withyou.authentication.presentation.PremiumViewModel
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,13 +24,23 @@ import com.example.withyou.ui.theme.AppSpacing
 @Composable
 fun FeedScreen(
     onVideoClick: (String) -> Unit,
-    viewModel: FeedViewModel = hiltViewModel()
+    viewModel: FeedViewModel = hiltViewModel(),
+    premiumViewModel: PremiumViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val premiumUiState by premiumViewModel.uiState
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.loadVideos()
+        premiumViewModel.checkPremiumStatus()
+    }
+
+    LaunchedEffect(premiumUiState.isPremium) {
+        Log.d(
+            "PREMIUM",
+            "User is Premium = ${premiumUiState.isPremium}"
+        )
     }
 
     when {
