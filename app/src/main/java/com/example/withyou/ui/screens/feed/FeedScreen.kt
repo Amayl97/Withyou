@@ -1,7 +1,7 @@
 package com.example.withyou.ui.screens.feed
 
-
-import androidx.compose.ui.platform.LocalContext
+import android.util.Log
+import com.example.withyou.authentication.presentation.PremiumViewModel
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,6 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.withyou.ui.theme.AppSpacing
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.TextButton
 
 @Composable
 fun FeedScreen(
@@ -26,7 +30,7 @@ fun FeedScreen(
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
+
 
     LaunchedEffect(Unit) {
         viewModel.loadVideos()

@@ -48,7 +48,9 @@ import com.example.withyou.ui.theme.WhiteBackground
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.example.withyou.authentication.presentation.PremiumViewModel
 import com.example.withyou.ui.screens.feed.VideoCard
 
 
@@ -60,11 +62,15 @@ fun ProfileScreen(
     onVideoClick: (String) -> Unit,
     viewModel: ProfileViewModel,
     onEditVideo: (String) -> Unit,
+    premiumViewModel: PremiumViewModel = hiltViewModel()
 ) {
     LaunchedEffect(Unit) {
         viewModel.loadProfile()
+        premiumViewModel.checkPremiumStatus()
     }
+
     val user = viewModel.user.value
+    val isPremium = premiumViewModel.uiState.value.isPremium
     val isLoading = viewModel.isLoading.value
     val errorMessage = viewModel.errorMessage.value
     val videos = viewModel.videos.value
@@ -253,6 +259,18 @@ fun ProfileScreen(
                         onContacts()
                     }
                 )
+
+                if (!isPremium) {
+                    DropdownMenuItem(
+                        text = {
+                            Text("Upgrade to Pro")
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            // Purchase flow will be added later
+                        }
+                    )
+                }
 
                 DropdownMenuItem(
                     text = {
