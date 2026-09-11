@@ -1,5 +1,7 @@
 package com.example.withyou.ui.screens.profile
 
+import android.app.Activity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
@@ -51,7 +53,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.example.withyou.authentication.presentation.PremiumViewModel
-
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 
 @Composable
 fun ProfileScreen(
@@ -74,6 +77,8 @@ fun ProfileScreen(
     val isLoading = viewModel.isLoading.value
     val errorMessage = viewModel.errorMessage.value
     val videos = viewModel.videos.value
+
+    val context = LocalContext.current
     if (isLoading) {
         LoadingState()
         return
@@ -84,6 +89,9 @@ fun ProfileScreen(
     }
 
     var menuExpanded by remember {
+        mutableStateOf(false)
+    }
+    var showUpgradeDialog by remember {
         mutableStateOf(false)
     }
     Box(
@@ -270,7 +278,8 @@ fun ProfileScreen(
                         },
                         onClick = {
                             menuExpanded = false
-                            // Purchase flow will be added later
+                            showUpgradeDialog = true
+                            premiumViewModel.loadOfferings()
                         }
                     )
                 }
@@ -282,6 +291,74 @@ fun ProfileScreen(
                     onClick = {
                         menuExpanded = false
                         onLogout()
+                    }
+                )
+            }
+
+            if (showUpgradeDialog) {
+
+                val offerings = premiumViewModel.uiState.value.offerings
+                val isLoading = premiumViewModel.uiState.value.isLoading
+                val error = premiumViewModel.uiState.value.error
+
+                AlertDialog(
+                    onDismissRequest = {
+                        showUpgradeDialog = false
+                    },
+                    title = {
+                        Text("Upgrade to Pro")
+                    },
+                    text = {
+
+                        when {
+                            isLoading -> {
+                                Text("Loading subscription options...")
+                            }
+
+                            error != null -> {
+                                Text(error)
+                            }
+
+                            offerings?.current == null -> {
+                                Text("No subscription options available.")
+                            }
+
+                            else -> {
+                                Column {
+
+                                    offerings.current?.availablePackages
+                                        ?.forEach { packageItem ->
+
+                                            TextButton(
+                                                onClick = {
+
+                                                    val activity = context as? Activity
+
+                                                    if (activity != null) {
+                                                        premiumViewModel.purchase(
+                                                            activity = activity,
+                                                            packageToPurchase = packageItem
+                                                        )
+                                                    }
+                                                }
+                                            ) {
+                                                Text(
+                                                    packageItem.product.title
+                                                )
+                                            }
+                                        }
+                                }
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showUpgradeDialog = false
+                            }
+                        ) {
+                            Text("Close")
+                        }
                     }
                 )
             }
