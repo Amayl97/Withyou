@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
@@ -142,11 +143,28 @@ fun ProfileScreen(
                     modifier = Modifier.height(AppSpacing.Small)
                 )
 
-                Text(
-                    text = user?.displayName ?: "",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = user?.displayName ?: "",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    if (isPremium) {
+                        Spacer(
+                            modifier = Modifier.width(AppSpacing.Small)
+                        )
+
+                        Text(
+                            text = "Pro",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Primary
+                        )
+                    }
+                }
                 Spacer(
                     modifier = Modifier.height(AppSpacing.Small)
                 )
