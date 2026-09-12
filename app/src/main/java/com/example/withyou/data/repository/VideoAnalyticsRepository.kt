@@ -1,11 +1,12 @@
 package com.example.withyou.data.repository
+
+import com.example.withyou.data.model.Video
 import com.example.withyou.data.model.VideoAnalytics
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class VideoAnalyticsRepository @Inject constructor(
-    private val permissionRepository: PermissionRepository,
     private val firestore: FirebaseFirestore,
     private val userRepository: UserRepository
 ) {
@@ -16,13 +17,20 @@ class VideoAnalyticsRepository @Inject constructor(
 
         return try {
 
-            val permissions =
-                permissionRepository
-                    .getPermissions(videoId)
-                    .getOrThrow()
+            val videoSnapshot = firestore
+                .collection("videos")
+                .document(videoId)
+                .get()
+                .await()
+
+            val video =
+                videoSnapshot.toObject(Video::class.java)
+                    ?: return Result.failure(
+                        Exception("Video not found")
+                    )
 
             Result.success(
-                permissions.map { it.userId }
+                video.allowedContactIds
             )
 
         } catch (e: Exception) {
@@ -55,6 +63,7 @@ class VideoAnalyticsRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
     suspend fun getVideoAnalytics(
         videoId: String
     ): Result<List<VideoAnalytics>> {
@@ -70,19 +79,20 @@ class VideoAnalyticsRepository @Inject constructor(
                     .getOrThrow()
                     .toSet()
 
-            val analytics = authorizedViewerIds.mapNotNull { viewerId ->
+            val analytics =
+                authorizedViewerIds.mapNotNull { viewerId ->
 
-                val user =
-                    userRepository.getUser(viewerId)
-                        ?: return@mapNotNull null
+                    val user =
+                        userRepository.getUser(viewerId)
+                            ?: return@mapNotNull null
 
-                VideoAnalytics(
-                    viewerId = viewerId,
-                    viewerName = user.displayName,
-                    viewerProfileImagePath = user.profileImagePath,
-                    watched = viewerId in watchedViewerIds
-                )
-            }
+                    VideoAnalytics(
+                        viewerId = viewerId,
+                        viewerName = user.displayName,
+                        viewerProfileImagePath = user.profileImagePath,
+                        watched = viewerId in watchedViewerIds
+                    )
+                }
 
             Result.success(analytics)
 
