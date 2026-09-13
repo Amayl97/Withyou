@@ -52,7 +52,12 @@ service cloud.firestore {
                       ).data.ownerId == request.auth.uid
                     );
 
-        allow update, delete: if false;
+       allow update: if false;
+
+       allow delete: if request.auth != null
+                     && get(
+                       /databases/$(database)/documents/videos/$(videoId)
+                     ).data.ownerId == request.auth.uid;
       }
 
 

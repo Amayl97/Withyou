@@ -33,17 +33,21 @@ class ProfileViewModel @Inject constructor(
     private val _errorMessage = mutableStateOf<String?>(null)
     val errorMessage: State<String?> = _errorMessage
 
-    fun loadProfile(){
+    fun loadProfile() {
         val uid = authenticationRepository.getCurrentUserId()
-        if (uid == null){
+
+        if (uid == null) {
             _errorMessage.value = "User not authenticated"
             return
         }
+
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
+
             try {
                 _user.value = userRepository.getUser(uid)
+
                 val videosResult =
                     videoRepository.getUserVideos(uid)
 
@@ -54,9 +58,9 @@ class ProfileViewModel @Inject constructor(
 
                             val thumbnailUrl =
                                 video.thumbnailPath?.let { path ->
-
                                     try {
-                                        videoStorageRepository.getSignedThumbnailUrl(path)
+                                        videoStorageRepository
+                                            .getSignedThumbnailUrl(path)
                                     } catch (e: Exception) {
                                         null
                                     }
@@ -71,34 +75,47 @@ class ProfileViewModel @Inject constructor(
                         _videos.value = profileVideos
                     }
                     .onFailure { exception ->
+
                         _errorMessage.value =
                             exception.message
                                 ?: "Failed to load videos"
                     }
 
-                Log.d(
-                    "PROFILE_IMAGE",
-                    "Image path = ${_user.value?.profileImagePath}"
+            } catch (e: Exception) {
+
+                Log.e(
+                    "PROFILE_LOAD",
+                    "Failed to load profile",
+                    e
                 )
-            }catch (e: Exception){
-                _errorMessage.value = e.message ?: "Failed to load the Profile Image"
-            }
 
-            try {
-                _user.value = userRepository.getUser(uid)
-            }
-            catch (e: Exception){
-                _errorMessage.value = e.message ?: "Failed to load the Profile"
-            }
-            finally {
-                _isLoading.value= false
-            }
+                _errorMessage.value =
+                    e.message
+                        ?: "Failed to load profile"
 
+            } finally {
+                _isLoading.value = false
+            }
         }
-
     }
 
+    fun deleteVideo(videoId: String) {
+        viewModelScope.launch {
+            _errorMessage.value = null
 
-
+            videoRepository
+                .deleteVideo(videoId)
+                .onSuccess {
+                    _videos.value = _videos.value.filter {
+                        it.video.id != videoId
+                    }
+                }
+                .onFailure { exception ->
+                    _errorMessage.value =
+                        exception.message
+                            ?: "Failed to delete video"
+                }
+        }
+    }
 
 }

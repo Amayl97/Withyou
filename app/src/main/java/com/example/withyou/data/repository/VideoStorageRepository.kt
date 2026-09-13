@@ -183,4 +183,28 @@ class VideoStorageRepository @Inject constructor(
 
         return thumbnailPath
     }
+
+
+    suspend fun deleteVideoFiles(
+        userId: String,
+        videoId: String,
+        thumbnailPath: String?
+    ) {
+        val videoPath = createVideoPath(
+            userId = userId,
+            videoId = videoId
+        )
+
+        val pathsToDelete = buildList {
+            add(videoPath)
+
+            if (thumbnailPath != null) {
+                add(thumbnailPath)
+            }
+        }
+
+        supabaseClient.storage
+            .from("videos")
+            .delete(*pathsToDelete.toTypedArray())
+    }
 }
