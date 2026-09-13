@@ -85,7 +85,12 @@ fun ProfileScreen(
         return
     }
     if (errorMessage != null) {
-        ErrorState()
+        ErrorState(
+            errorMessage = errorMessage,
+            onRetry = {
+                viewModel.loadProfile()
+            }
+        )
         return
     }
 
@@ -94,6 +99,51 @@ fun ProfileScreen(
     }
     var showUpgradeDialog by remember {
         mutableStateOf(false)
+    }
+    var videoToDelete by remember {
+        mutableStateOf<Video?>(null)
+    }
+    if (videoToDelete != null) {
+        AlertDialog(
+            onDismissRequest = {
+                videoToDelete = null
+            },
+            title = {
+                Text("Delete video?")
+            },
+            text = {
+                Text(
+                    "This video and its thumbnail will be permanently deleted."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val videoId = videoToDelete?.id
+
+                        if (videoId != null) {
+                            viewModel.deleteVideo(videoId)
+                        }
+
+                        videoToDelete = null
+                    }
+                ) {
+                    Text(
+                        "Delete",
+                        color = Color.Red
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        videoToDelete = null
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
     Box(
         modifier = Modifier.fillMaxSize()
@@ -245,6 +295,9 @@ fun ProfileScreen(
                         },
                         onAnalytics = {
                             onAnalytics(item.video.id)
+                        },
+                        onDelete = {
+                            videoToDelete = item.video
                         }
                     )
                 }
@@ -392,7 +445,8 @@ fun VideoCard(
     thumbnailUrl: String?,
     onClick: () -> Unit,
     onEdit: () -> Unit,
-    onAnalytics: () -> Unit
+    onAnalytics: () -> Unit,
+    onDelete: () -> Unit
 ) {
     Spacer(
         modifier = Modifier.height(AppSpacing.Medium)
@@ -493,8 +547,7 @@ fun VideoCard(
                         },
                         onClick = {
                             menuExpanded = false
-
-                            // Delete functionality later
+                            onDelete()
                         }
                     )
                 }
@@ -530,22 +583,24 @@ fun EmptyVideosState(){
 }
 
 @Composable
-fun ErrorState(){
+fun ErrorState(
+    errorMessage: String?,
+    onRetry: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text("Something went wrong")
-        Text("Unable to load your profile.")
+        Text(
+            text = errorMessage ?: "Unable to load your profile."
+        )
 
         Button(
-            onClick = {
-
-            }
+            onClick = onRetry
         ) {
             Text("Retry")
         }
     }
-
 }

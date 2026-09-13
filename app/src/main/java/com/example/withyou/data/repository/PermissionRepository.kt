@@ -84,4 +84,29 @@ class PermissionRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
+
+    suspend fun deletePermissionsForVideo(
+        videoId: String
+    ): Result<Unit> {
+        return try {
+            val permissionsSnapshot = firestore
+                .collection("videos")
+                .document(videoId)
+                .collection("permissions")
+                .get()
+                .await()
+
+            for (permissionDocument in permissionsSnapshot.documents) {
+                permissionDocument.reference
+                    .delete()
+                    .await()
+            }
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

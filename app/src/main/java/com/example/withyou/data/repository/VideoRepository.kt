@@ -10,8 +10,9 @@ import javax.inject.Inject
 class VideoRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth,
-    private val permissionRepository: PermissionRepository
-) {
+    private val permissionRepository: PermissionRepository,
+    private val videoStorageRepository: VideoStorageRepository
+){
 
     suspend fun saveVideo(video: Video): Result<Unit> {
         return try {
@@ -241,5 +242,72 @@ suspend fun getVideos(): Result<List<Video>> {
         }
     }
 
+    suspend fun deleteVideo(videoId: String): Result<Unit> {
+        return try {
+
+            val currentUserId = auth.currentUser?.uid
+                ?: return Result.failure(
+                    IllegalStateException("User is not logged in")
+                )
+
+            val videoRef = firestore
+                .collection("videos")
+                .document(videoId)
+
+            val videoSnapshot = videoRef
+                .get()
+                .await()
+
+            val video = videoSnapshot
+                .toObject(Video::class.java)
+                ?: return Result.failure(
+                    IllegalStateException("Video not found")
+                )
+
+            if (video.ownerId != currentUserId) {
+                return Result.failure(
+                    IllegalAccessException(
+                        "You can only delete your own videos"
+                    )
+                )
+            }
+            videoStorageRepository.deleteVideoFiles(
+                userId = video.ownerId,
+                videoId = video.id,
+                thumbnailPath = video.thumbnailPath
+            )
+
+            val viewsSnapshot = videoRef
+                .collection("views")
+                .get()
+                .await()
+
+            for (viewDocument in viewsSnapshot.documents) {
+                viewDocument.reference
+                    .delete()
+                    .await()
+            }
+
+            permissionRepository
+                .deletePermissionsForVideo(videoId)
+                .getOrThrow()
+
+            videoRef
+                .delete()
+                .await()
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+
+            Log.e(
+                "VideoRepository",
+                "Failed to delete video",
+                e
+            )
+
+            Result.failure(e)
+        }
+    }
 
 }
