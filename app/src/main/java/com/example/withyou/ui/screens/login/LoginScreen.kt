@@ -38,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.withyou.authentication.presentation.AuthViewModel
+import com.example.withyou.data.util.PhoneNumberUtils
 import com.example.withyou.ui.theme.Primary
 import com.example.withyou.ui.theme.WhiteBackground
 
@@ -187,7 +188,10 @@ fun LoginScreen(
         Button(
             onClick = {
                 viewModel.sendOtp(
-                    phoneNumber = countryCode + phoneNumber,
+                    phoneNumber = PhoneNumberUtils.normalize(
+                        countryCode = countryCode,
+                        phoneNumber = phoneNumber
+                    ),
                     activity = activity,
                     onOtpSent = onOtpSent
                 )
