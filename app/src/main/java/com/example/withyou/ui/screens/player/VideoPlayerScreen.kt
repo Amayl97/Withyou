@@ -613,9 +613,7 @@ fun VideoPlayerScreen(
                                 } else {
 
                                     AsyncImage(
-                                        model =
-                                            uiState.owner
-                                                ?.profileImagePath,
+                                        model = uiState.ownerProfileImageUrl,
 
                                         contentDescription =
                                             "Profile picture",

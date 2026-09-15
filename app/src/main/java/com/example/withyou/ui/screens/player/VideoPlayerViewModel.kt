@@ -1,5 +1,6 @@
 package com.example.withyou.ui.screens.player
 
+import com.example.withyou.data.repository.VideoStorageRepository
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
 class VideoPlayerViewModel @Inject constructor(
     private val videoRepository: VideoRepository,
     private val videoAccessRepository: VideoAccessRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val videoStorageRepository: VideoStorageRepository
 ) : ViewModel() {
 
     private val _uiState =
@@ -54,7 +56,23 @@ class VideoPlayerViewModel @Inject constructor(
                     userRepository.getUser(
                         video.ownerId
                     )
-
+                val ownerProfileImageUrl =
+                    if (!owner?.profileImagePath.isNullOrBlank()) {
+                        try {
+                            videoStorageRepository.getSignedProfileImageUrl(
+                                owner!!.profileImagePath
+                            )
+                        } catch (e: Exception) {
+                            Log.e(
+                                "VideoPlayer",
+                                "Failed to generate owner profile image URL",
+                                e
+                            )
+                            null
+                        }
+                    } else {
+                        null
+                    }
                 // -------------------------------------------------
                 // Get secure video URL
                 // -------------------------------------------------
@@ -90,7 +108,8 @@ class VideoPlayerViewModel @Inject constructor(
                         videoTitle = video.title,
                         videoDescription = video.description,
                         watched = videoRepository.hasWatchedVideo(videoId),
-                        owner = owner
+                        owner = owner,
+                        ownerProfileImageUrl = ownerProfileImageUrl
                     )
 
             } catch (e: Exception) {
