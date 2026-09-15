@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.withyou.data.model.Contact
 import com.example.withyou.data.repository.ContactsRepository
+import com.example.withyou.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ContactsViewModel @Inject constructor(
-    private val contactsRepository: ContactsRepository
+    private val contactsRepository: ContactsRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ContactsUiState())
@@ -39,7 +41,17 @@ class ContactsViewModel @Inject constructor(
             try {
                 // Reads the latest contacts from the device.
                 val contacts = withContext(Dispatchers.IO) {
-                    contactsRepository.getContact()
+                    contactsRepository.getContact().map { contact ->
+
+                        val user =
+                            userRepository.getUserByPhoneNumber(
+                                contact.phoneNumber
+                            )
+
+                        contact.copy(
+                            isOnWithYou = user != null
+                        )
+                    }
                 }
 
                 // Stores the complete list separately.

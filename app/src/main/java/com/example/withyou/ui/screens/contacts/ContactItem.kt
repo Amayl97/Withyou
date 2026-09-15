@@ -79,14 +79,16 @@ fun ContactItem(
             modifier = Modifier.weight(1f)
         )
 
-        Button(
-            onClick = {
-                onInviteClick(contact)
+        if (!contact.isOnWithYou) {
+            Button(
+                onClick = {
+                    onInviteClick(contact)
+                }
+            ) {
+                Text(
+                    text = "Invite"
+                )
             }
-        ) {
-            Text(
-                text = "Invite"
-            )
         }
     }
 }

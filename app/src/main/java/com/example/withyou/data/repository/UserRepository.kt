@@ -16,7 +16,8 @@ class UserRepository @Inject constructor(
 
         val normalizedUser = user.copy(
             phoneNumber = PhoneNumberUtils.normalize(
-                user.phoneNumber
+                countryCode = "",
+                phoneNumber = user.phoneNumber
             )
         )
 
@@ -38,7 +39,8 @@ class UserRepository @Inject constructor(
 
         val normalizedUser = user.copy(
             phoneNumber = PhoneNumberUtils.normalize(
-                user.phoneNumber
+                countryCode = "",
+                phoneNumber = user.phoneNumber
             )
         )
 

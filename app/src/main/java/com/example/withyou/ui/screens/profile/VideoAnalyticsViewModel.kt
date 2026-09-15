@@ -10,6 +10,7 @@ import com.example.withyou.data.repository.VideoAnalyticsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.launch
+import com.example.withyou.data.repository.VideoStorageRepository
 
 data class VideoAnalyticsUiState(
     val isLoading: Boolean = false,
@@ -21,7 +22,8 @@ data class VideoAnalyticsUiState(
 @HiltViewModel
 class VideoAnalyticsViewModel @Inject constructor(
     private val premiumRepository: PremiumRepository,
-    private val videoAnalyticsRepository: VideoAnalyticsRepository
+    private val videoAnalyticsRepository: VideoAnalyticsRepository,
+    private val videoStorageRepository: VideoStorageRepository
 ) : ViewModel() {
 
     private val _uiState =
@@ -59,6 +61,25 @@ class VideoAnalyticsViewModel @Inject constructor(
                     videoAnalyticsRepository
                         .getVideoAnalytics(videoId)
                         .getOrThrow()
+                        .map { viewer ->
+
+                            val signedProfileImageUrl =
+                                if (viewer.viewerProfileImagePath.isNotBlank()) {
+                                    try {
+                                        videoStorageRepository.getSignedProfileImageUrl(
+                                            viewer.viewerProfileImagePath
+                                        )
+                                    } catch (e: Exception) {
+                                        ""
+                                    }
+                                } else {
+                                    ""
+                                }
+
+                            viewer.copy(
+                                viewerProfileImagePath = signedProfileImageUrl
+                            )
+                        }
 
                 _uiState.value =
                     VideoAnalyticsUiState(

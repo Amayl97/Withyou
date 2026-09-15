@@ -157,6 +157,7 @@ fun ProfileScreen(
                 .verticalScroll(rememberScrollState())
         ) {
 
+
             // Profile Header
             Column(
                 modifier = Modifier
@@ -164,7 +165,7 @@ fun ProfileScreen(
                     .padding(top = AppSpacing.Large),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
+               
                 if (user?.profileImagePath.isNullOrBlank()) {
 
 
@@ -181,7 +182,7 @@ fun ProfileScreen(
                 } else {
 
                     AsyncImage(
-                        model = user?.profileImagePath,
+                        model = viewModel.profileImageUrl.value,
                         contentDescription = "Profile picture",
                         modifier = Modifier
                             .size(90.dp)
