@@ -394,4 +394,4 @@ GitHub: [Amayl97](https://github.com/Amayl97)
 
 WithYou is licensed under the **MIT License**.
 
-See the [LICENSE](LICENSE) file for the complete license text.
+See the [LICENSE](../LICENSE) file for the complete license text.
