@@ -82,21 +82,6 @@ class VideoPlayerViewModel @Inject constructor(
                         .getVideoUrl(videoId)
                         .getOrThrow()
 
-                Log.d(
-                    "VideoPlayer",
-                    "Video metadata loaded"
-                )
-
-                Log.d(
-                    "VideoPlayer",
-                    "Owner: ${owner?.displayName}"
-                )
-
-                Log.d(
-                    "VideoPlayer",
-                    "Authorized video access"
-                )
-
                 // -------------------------------------------------
                 // Update UI
                 // -------------------------------------------------
@@ -113,12 +98,6 @@ class VideoPlayerViewModel @Inject constructor(
                     )
 
             } catch (e: Exception) {
-
-                Log.e(
-                    "VideoPlayer",
-                    "Failed to load video",
-                    e
-                )
 
                 _uiState.value =
                     VideoPlayerUiState(
@@ -149,17 +128,7 @@ class VideoPlayerViewModel @Inject constructor(
                             watched = true
                         )
 
-                    Log.d(
-                        "VideoPlayer",
-                        "New video view recorded: $videoId"
-                    )
 
-                } else {
-
-                    Log.d(
-                        "VideoPlayer",
-                        "Video already viewed by this user"
-                    )
                 }
 
             } else {

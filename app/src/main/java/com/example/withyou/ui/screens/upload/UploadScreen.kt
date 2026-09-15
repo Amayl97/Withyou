@@ -250,33 +250,6 @@ fun UploadScreen() {
         }
 
         // ---------------------------------------------------------
-        // Video metadata
-        // ---------------------------------------------------------
-
-        uiState.videoInfo?.let { videoInfo ->
-
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
-
-            Text(
-                text = "File name: ${videoInfo.fileName}"
-            )
-
-            Text(
-                text = "Duration: ${videoInfo.duration} ms"
-            )
-
-            Text(
-                text = "File size: ${videoInfo.fileSize} bytes"
-            )
-
-            Text(
-                text = "Type: ${videoInfo.mimeType}"
-            )
-        }
-
-        // ---------------------------------------------------------
         // Title
         // ---------------------------------------------------------
 
