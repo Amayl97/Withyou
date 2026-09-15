@@ -28,14 +28,16 @@ object SupabaseModule {
         ) {
 
             accessToken = {
+                val token =
+                    authenticationRepository.getFirebaseIdToken()
+
                 Log.d(
                     "SUPABASE_AUTH_DEBUG",
-                    "Supabase requesting Firebase token"
+                    "Firebase token available: ${!token.isNullOrBlank()}"
                 )
 
-                authenticationRepository.getFirebaseIdToken()
+                token
             }
-
             install(Storage)
         }
     }

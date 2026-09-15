@@ -84,6 +84,11 @@ class VideoStorageRepository @Inject constructor(
                 data = videoBytes
             )
 
+        Log.d(
+            "SUPABASE_AUTH_DEBUG",
+            "Supabase upload path: $videoPath"
+        )
+
         return videoPath
     }
 
@@ -196,6 +201,10 @@ class VideoStorageRepository @Inject constructor(
     ): String {
 
         val profileImagePath = createProfileImagePath(userId)
+        Log.d(
+            "SUPABASE_AUTH_DEBUG",
+            "Supabase upload path: $profileImagePath"
+        )
 
         val imageBytes = contentResolver
             .openInputStream(imageUri)

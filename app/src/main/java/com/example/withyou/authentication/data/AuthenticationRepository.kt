@@ -28,7 +28,7 @@ interface AuthenticationRepository{
     suspend fun getFirebaseIdToken(): String? {
         return FirebaseAuth.getInstance()
             .currentUser
-            ?.getIdToken(false)
+            ?.getIdToken(true)
             ?.await()
             ?.token
     }
