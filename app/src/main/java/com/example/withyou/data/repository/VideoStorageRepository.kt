@@ -32,6 +32,11 @@ class VideoStorageRepository @Inject constructor(
     ): String {
         return "$userId/${videoId}_thumbnail.jpg"
     }
+    fun createProfileImagePath(
+        userId: String
+    ): String {
+        return "$userId/profile/profile.jpg"
+    }
 
     suspend fun uploadVideo(
         contentResolver: ContentResolver,
@@ -184,7 +189,43 @@ class VideoStorageRepository @Inject constructor(
         return thumbnailPath
     }
 
+    suspend fun uploadProfileImage(
+        contentResolver: ContentResolver,
+        imageUri: Uri,
+        userId: String
+    ): String {
 
+        val profileImagePath = createProfileImagePath(userId)
+
+        val imageBytes = contentResolver
+            .openInputStream(imageUri)
+            ?.use { inputStream ->
+                inputStream.readBytes()
+            }
+            ?: throw IllegalStateException(
+                "Unable to read selected profile image"
+            )
+        supabaseClient.storage
+            .from("videos")
+            .upload(
+                path = profileImagePath,
+                data = imageBytes
+            ) {
+                upsert = true
+            }
+
+        return profileImagePath
+    }
+    suspend fun getSignedProfileImageUrl(
+        profileImagePath: String
+    ): String {
+        return supabaseClient.storage
+            .from("videos")
+            .createSignedUrl(
+                path = profileImagePath,
+                expiresIn = 30.minutes
+            )
+    }
     suspend fun deleteVideoFiles(
         userId: String,
         videoId: String,

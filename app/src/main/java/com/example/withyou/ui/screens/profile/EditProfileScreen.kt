@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -45,11 +46,13 @@ fun EditProfileScreen(
     onBack: () -> Unit,
     viewModel: EditProfileViewModel
 ) {
+    val context = LocalContext.current
     val user = viewModel.user.value
     val isLoading = viewModel.isLoading.value
     val errorMessage = viewModel.errorMessage.value
 
     val selectedImageUri= viewModel.selectedImageUri.value
+
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -98,26 +101,40 @@ fun EditProfileScreen(
         )
 
         // Profile image
-        if (selectedImageUri != null) {
-            AsyncImage(
-                model = selectedImageUri,
-                contentDescription = "Profile Picture",
-                modifier = Modifier
-                    .size(90.dp)
-                    .clip(MaterialTheme.shapes.extraLarge)
-                    .align(Alignment.CenterHorizontally)
-            )
-        } else {
-            Image(
-                painter = painterResource(R.drawable.avatar),
-                contentDescription = "Profile Picture",
-                modifier = Modifier
-                    .size(90.dp)
-                    .clip(MaterialTheme.shapes.extraLarge)
-                    .align(Alignment.CenterHorizontally)
-            )
-        }
+        when {
+            selectedImageUri != null -> {
+                AsyncImage(
+                    model = selectedImageUri,
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier
+                        .size(90.dp)
+                        .clip(MaterialTheme.shapes.extraLarge)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
 
+            !viewModel.profileImageUrl.value.isNullOrBlank() -> {
+                AsyncImage(
+                    model = viewModel.profileImageUrl.value,
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier
+                        .size(90.dp)
+                        .clip(MaterialTheme.shapes.extraLarge)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+
+            else -> {
+                Image(
+                    painter = painterResource(R.drawable.avatar),
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier
+                        .size(90.dp)
+                        .clip(MaterialTheme.shapes.extraLarge)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+        }
         Spacer(
             modifier = Modifier.height(AppSpacing.Medium)
         )
@@ -214,6 +231,7 @@ fun EditProfileScreen(
                 viewModel.updateProfile(
                     username = username,
                     bio = bio,
+                    contentResolver = context.contentResolver,
                     onSuccess = {
                         onBack()
                     }

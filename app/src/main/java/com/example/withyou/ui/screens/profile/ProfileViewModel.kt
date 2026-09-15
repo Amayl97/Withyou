@@ -22,6 +22,8 @@ class ProfileViewModel @Inject constructor(
     private val videoStorageRepository: VideoStorageRepository,
     private val authenticationRepository: AuthenticationRepository
 ) : ViewModel(){
+    private val _profileImageUrl = mutableStateOf<String?>(null)
+    val profileImageUrl: State<String?> = _profileImageUrl
     private val _user = mutableStateOf<User?>(null)
     val user: State<User?> = _user
     private val _videos =
@@ -48,8 +50,29 @@ class ProfileViewModel @Inject constructor(
             try {
                 _user.value = userRepository.getUser(uid)
 
-                val videosResult =
-                    videoRepository.getUserVideos(uid)
+                val profileImagePath = _user.value?.profileImagePath
+
+                _profileImageUrl.value = null
+
+                if (!profileImagePath.isNullOrBlank()) {
+                    try {
+                        _profileImageUrl.value =
+                            videoStorageRepository.getSignedProfileImageUrl(profileImagePath)
+                        Log.d(
+                            "PROFILE_IMAGE_DEBUG",
+                            "Signed profile image URL: ${_profileImageUrl.value}"
+                        )
+                    } catch (e: Exception) {
+                        Log.e(
+                            "PROFILE_IMAGE_DEBUG",
+                            "Failed to create signed profile image URL",
+                            e
+                        )
+                        _profileImageUrl.value = null
+                    }
+                }
+
+                val videosResult = videoRepository.getUserVideos(uid)
 
                 videosResult
                     .onSuccess { videos ->
