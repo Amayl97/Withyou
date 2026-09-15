@@ -3,5 +3,6 @@ package com.example.withyou.data.model
 data class Contact(
     val id: String,
     val name: String,
-    val phoneNumber: String
+    val phoneNumber: String,
+    val isOnWithYou: Boolean = false
 )
